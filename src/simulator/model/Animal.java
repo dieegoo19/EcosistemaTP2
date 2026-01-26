@@ -1,5 +1,11 @@
 package simulator.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import simulator.misc.Utils;
 import simulator.misc.Vector2D;
 
@@ -10,7 +16,7 @@ public abstract class Animal implements Entity, AnimalInfo {
 	private Vector2D pos;
 	private Vector2D dest;
 	private double energy;
-	private double  speed;
+	private double speed;
 	private double age;
 	private double desire;
 	private double sightRange;
@@ -65,6 +71,57 @@ public abstract class Animal implements Entity, AnimalInfo {
 		this.dest = Vector2D.randomInMapVector(width, height);
 	}
 	
+	public Animal deliverBaby() {
+		Animal aux = this.baby;
+		this.baby = null;
+		return aux;
+	}
+	
+	protected void move(double speed) {
+		pos = pos.plus(dest.minus(pos).direction().scale(speed));
+	}
+	
+	protected void setState(State state) {
+		this.state = state;
+		switch (state) {
+		case NORMAL:
+			setNormalStateAction();
+			break;
+		case MATE:
+			setMateStateAction();
+			break;
+		case HUNGER:
+			setHungerStateAction();
+			break;
+		case DANGER:
+			setDangerStateAction();
+			break;
+		case DEAD:
+			setDeadStateAction();
+			break;
+		}
+	}
+	
+	protected abstract void setNormalStateAction();
+	protected abstract void setDangerStateAction();
+	protected abstract void setMateStateAction();
+	protected abstract void setHungerStateAction();
+	protected abstract void setDeadStateAction();
+	
+	
+	public JSONObject asJSON() {
+		
+		JSONObject jo1 = new JSONObject();
+
+		jo1.put("pos", pos.vectorToPair());
+		jo1.put("gcode", geneticCode);
+		jo1.put("diet", diet);
+		jo1.put("state", state);
+		
+		return jo1;
+	}
+	
+	
 	@Override
 	public String getGeneticCode() {
 		return geneticCode;
@@ -104,7 +161,7 @@ public abstract class Animal implements Entity, AnimalInfo {
 		return age;
 	}
 
-	public double getDesire() {
+	protected double getDesire() {
 		return desire;
 	}
 
@@ -117,4 +174,6 @@ public abstract class Animal implements Entity, AnimalInfo {
     public boolean isPregnant() {
         return baby != null;
     }
+	
+	
 }

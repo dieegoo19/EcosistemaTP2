@@ -1,5 +1,8 @@
 package simulator.misc;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.json.JSONArray;
 
 public class Vector2D {
@@ -38,7 +41,11 @@ public class Vector2D {
 	}
 	
 	
-	
+	public List<Double> vectorToPair(){
+		List<Double> ret = new ArrayList<Double>(2);
+		ret.add(x); ret.add(y);
+		return ret;
+	}
 	
 	
 	// return the inner product of this Vector a and b

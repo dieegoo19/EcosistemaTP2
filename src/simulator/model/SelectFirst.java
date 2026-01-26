@@ -8,7 +8,7 @@ public class SelectFirst implements SelectionStrategy{
 
 	@Override
 	public Animal select(Animal a, List<Animal> as) {
-		return null;
+		return as.get(0);
 	}
 
 }
