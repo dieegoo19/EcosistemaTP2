@@ -1,6 +1,10 @@
-package simulator.model;
-
+package simulator.model.elements;
+import simulator.model.selection.*;
+import simulator.misc.Utils;
 import simulator.misc.Vector2D;
+import simulator.model.Diet;
+import simulator.model.State;
+import simulator.model.selection.*;
 
 public class Sheep extends Animal{
 	
@@ -20,25 +24,44 @@ public class Sheep extends Animal{
 	}
 
 	@Override
-	public void update(double dt) {
-		State st = this.getState();
-		switch (st) {
-		case NORMAL:
-			break;
-		case MATE:
-			break;
-		case HUNGER:
-			break;
-		case DANGER:
-			break;
-		case DEAD:
-			break;
+	protected void NormalAction(double dt) {
+		super.NormalAction(dt);
+		super.updateEnergy(super.getEnergy() - 20.0*dt);
+		super.updateDesire(super.getDesire() - 40.0*dt);
+		setState(State.NORMAL);
+	}
+
+	@Override
+	protected void DangerAction(double dt) {
+		if(dangerSource != null && getState() == State.DEAD) {
+			dangerSource = null;
+		}
+		if(dangerSource == null) {
+			this.NormalAction(dt);
+		}
+		else {
+			getPosition().plus(getPosition().minus(dangerSource.getPosition()).direction());
 		}
 		
-		//TODO ajustar if outOfRange this.setState(State.NORMAL) y mas
+	}
+
+	@Override
+	protected void MateAction(double dt) {
+		// TODO Auto-generated method stub
 		
 	}
-	
+
+	@Override
+	protected void HungerAction(double dt) {
+		
+		
+	}
+
+	@Override
+	protected void DeadAction(double dt) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 
 	private SelectionStrategy getDangerStrategy() {
@@ -78,6 +101,8 @@ public class Sheep extends Animal{
 		// TODO Auto-generated method stub
 		
 	}
+
+	
 
 	
 

@@ -1,6 +1,8 @@
-package simulator.model;
+package simulator.model.selection;
 
 import java.util.List;
+
+import simulator.model.elements.Animal;
 
 public class SelectYoungest implements SelectionStrategy{
 

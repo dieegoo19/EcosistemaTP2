@@ -32,7 +32,6 @@ public class Vector2D {
 	}
 	
 	
-	
 	public void mapAdjustment(double width, double height) {
 		while (x >= width) x = (x - width);  
 		while (x < 0) x = (x + width);  

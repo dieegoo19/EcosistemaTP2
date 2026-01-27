@@ -1,5 +1,5 @@
-package simulator.model;
-
+package simulator.model.elements;
+import simulator.model.selection.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,6 +8,10 @@ import org.json.JSONObject;
 
 import simulator.misc.Utils;
 import simulator.misc.Vector2D;
+import simulator.model.AnimalMapView;
+import simulator.model.Diet;
+import simulator.model.Entity;
+import simulator.model.State;
 
 public abstract class Animal implements Entity, AnimalInfo {
 	private String geneticCode;
@@ -59,6 +63,59 @@ public abstract class Animal implements Entity, AnimalInfo {
 		this.baby = null;
 		this.regionMngr = null;
 	}
+	
+	@Override
+	public void update(double dt) {
+		State st = this.getState();
+		switch (st) {
+		case NORMAL:
+			NormalAction(dt);
+			break;
+		case MATE:
+			DangerAction(dt);
+			break;
+		case HUNGER:
+			MateAction(dt);
+			break;
+		case DANGER:
+			DangerAction(dt);
+			break;
+		case DEAD:
+			DeadAction(dt);
+			break;
+		}
+	}
+	
+	private boolean inSightRange(Animal a) {
+		return a.getPosition().distanceTo(this.getPosition()) > this.sightRange;
+	}
+	
+	private void destinationCheck() {
+		int width = 0, height = 0;
+		if(getPosition().distanceTo(getDestination()) < 8.0) {
+			// TODO: cambiar por regMngr
+			this.dest = Vector2D.randomInMapVector(width, height);
+		}
+	}
+	
+	protected void NormalAction(double dt) {
+		destinationCheck();
+		move(speed*dt*Math.exp((energy-100.0)*0.007));
+		age += dt;
+	}
+	
+	protected abstract void DangerAction(double dt);
+	
+	protected void MateAction(double dt) {
+		if((mateTarget != null && getState() == State.DEAD) || 
+				inSightRange(mateTarget)) {
+			mateTarget = null;
+		}
+	}
+	
+	protected abstract void HungerAction(double dt);
+	protected abstract void DeadAction(double dt);
+	
 	
 	public void init(AnimalMapView regMngr) {
 		double width = 0, height = 0;
@@ -150,6 +207,10 @@ public abstract class Animal implements Entity, AnimalInfo {
 	public double getEnergy() {
 		return energy;
 	}
+	
+	protected void updateEnergy(double newEnergy) {
+		energy = Utils.constrainValueInRange(newEnergy, 0.0, 100.0);
+	}
 
 	@Override
 	public double getSpeed() {
@@ -163,6 +224,10 @@ public abstract class Animal implements Entity, AnimalInfo {
 
 	protected double getDesire() {
 		return desire;
+	}
+	
+	protected void updateDesire(double newDesire) {
+		desire = Utils.constrainValueInRange(newDesire, 0.0, 100.0);;
 	}
 
 	@Override
