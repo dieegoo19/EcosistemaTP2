@@ -1,20 +1,20 @@
 package simulator.model.elements;
+
 import simulator.model.selection.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import simulator.misc.Utils;
 import simulator.misc.Vector2D;
 import simulator.model.AnimalMapView;
-import simulator.model.Constants;
 import simulator.model.Diet;
 import simulator.model.Entity;
 import simulator.model.State;
 
 public abstract class Animal implements Entity, AnimalInfo {
+	
 	private String geneticCode;
 	private Diet diet;
 	private State state;
@@ -27,24 +27,18 @@ public abstract class Animal implements Entity, AnimalInfo {
 	private double sightRange;
 	private Animal mateTarget;
 	private Animal baby;
-	private AnimalMapView regionMngr;
+	protected AnimalMapView regionMngr;
 	private SelectionStrategy mateStrategy;
-	
-	// PONER LOS FINAL CON LAS CONDICIONES DE CADA UNO PARA SIMPLIFICAR
-	final double foodDropRate;
-	final double desireIncreaseRate;
-	final double boostFactor;
-	final double maxAge;
-	final double foodDropBoostFactor;
-	
-	
-	
-	
+	protected final double foodDropRate;
+	protected final double desireIncreaseRate;
+	protected final double boostFactor;
+	protected final double maxAge;
+	protected final double foodDropBoostFactor;
 	
 	protected Animal(String geneticCode, Diet diet, double sightRange, double initSpeed, SelectionStrategy mateStrategy, Vector2D pos, 
 			double foodDropRate, double desireIncreaseRate, double boostFactor, double maxAge, double foodDropBoostFactor) throws IllegalArgumentException{
-		if(geneticCode == null || geneticCode == "" || sightRange < 0 || initSpeed < 0 || mateStrategy == null)
-			throw new IllegalArgumentException("Argumentos no validos");
+		if(geneticCode == null || geneticCode.isEmpty() || sightRange < 0 || initSpeed < 0 || mateStrategy == null)
+			throw new IllegalArgumentException("Argumentos no validos para crear un Animal");
 		this.geneticCode = geneticCode;
 		this.diet = diet;
 		this.sightRange = sightRange;
@@ -52,21 +46,21 @@ public abstract class Animal implements Entity, AnimalInfo {
 		this.mateStrategy = mateStrategy;
 		this.pos = pos;
 		this.state = State.NORMAL;
-		this.energy = 100.00;
+		this.energy = 100.0;
 		this.desire = 0.0;
 		this.dest = null;
 		this.mateTarget = null;
 		this.baby = null;
 		this.regionMngr = null;
 		this.foodDropRate = foodDropRate;
-		this.desireIncreaseRate = boostFactor;
+		this.desireIncreaseRate = desireIncreaseRate; 
 		this.boostFactor = boostFactor;
 		this.maxAge = maxAge;
 		this.foodDropBoostFactor = foodDropBoostFactor;
 	}
 	
 	protected Animal(Animal p1, Animal p2) {
-		this.age = 0;
+		this.age = 0.0;
 		this.geneticCode = p1.getGeneticCode();
 		this.diet = p1.getDiet();
 		this.sightRange = Utils.getRandomizedParameter((p1.getSightRange()+p2.getSightRange())/2, 0.2);
@@ -74,14 +68,14 @@ public abstract class Animal implements Entity, AnimalInfo {
 		this.mateStrategy = p2.mateStrategy;
 		this.pos = p1.getPosition().plus(Vector2D.getRandomVector(-1,1).scale(60.0*(Utils.RAND.nextGaussian()+1)));
 		this.state = State.NORMAL;
-		this.energy = (p1.getEnergy() + p2.getEnergy()) / 2.00;
+		this.energy = (p1.getEnergy() + p2.getEnergy()) / 2.0;
 		this.desire = 0.0;
 		this.dest = null;
 		this.mateTarget = null;
 		this.baby = null;
 		this.regionMngr = null;
 		this.foodDropRate = p1.foodDropRate;
-		this.desireIncreaseRate = p1.boostFactor;
+		this.desireIncreaseRate = p1.desireIncreaseRate;
 		this.boostFactor = p1.boostFactor;
 		this.maxAge = p1.maxAge;
 		this.foodDropBoostFactor = p1.foodDropBoostFactor;
@@ -91,8 +85,8 @@ public abstract class Animal implements Entity, AnimalInfo {
         this.geneticCode = other.geneticCode;
         this.diet = other.diet;
         this.state = other.state;
-        this.pos = new Vector2D(other.pos);
-        this.dest = (other.dest != null) ? new Vector2D(other.dest) : null;
+        this.pos = other.pos;
+        this.dest = other.dest;
         this.energy = other.energy;
         this.speed = other.speed;
         this.age = other.age;
@@ -111,25 +105,27 @@ public abstract class Animal implements Entity, AnimalInfo {
 	
 	protected abstract Animal copyOf();
 	
-	public static Vector2D randomInMapVector (double width, double height) {
-		return new Vector2D((width - 1) * Utils.RAND.nextDouble(), (height - 1) * Utils.RAND.nextDouble());
+	private Vector2D createRandomPosition() {
+		if (regionMngr == null) return new Vector2D(0,0);
+		double w = regionMngr.getWidth();
+		double h = regionMngr.getHeight();
+		return new Vector2D(Utils.RAND.nextDouble() * (w), Utils.RAND.nextDouble() * (h));
 	}
 	
-	
-	public Vector2D mapAdjustment(double width, double height) {
-		double x = pos.getX(), y = pos.getY();
-		while (x >= width) x = (x - width);  
-		while (x < 0) x = (x + width);  
-		while (y >= height) y = (y - height);  
-		while (y < 0) y = (y + height);
-		return new Vector2D(x,y);
-	}
-	
-	
-	public List<Double> posToPair(){
-		List<Double> ret = new ArrayList<Double>(2);
-		ret.add(pos.getX()); ret.add(pos.getY());
-		return ret;
+	private void adjustPosition() {
+		if (regionMngr != null) {
+			double width = regionMngr.getWidth();
+			double height = regionMngr.getHeight();
+			double x = pos.getX();
+			double y = pos.getY();
+			
+			while (x >= width) x = (x - width);  
+			while (x < 0) x = (x + width);  
+			while (y >= height) y = (y - height);  
+			while (y < 0) y = (y + height);
+			
+			this.pos = new Vector2D(x, y);
+		}
 	}
 	
 	@Override
@@ -140,10 +136,10 @@ public abstract class Animal implements Entity, AnimalInfo {
 			NormalAction(dt);
 			break;
 		case MATE:
-			DangerAction(dt);
+			MateAction(dt); 
 			break;
 		case HUNGER:
-			MateAction(dt);
+			HungerAction(dt);
 			break;
 		case DANGER:
 			DangerAction(dt);
@@ -152,100 +148,102 @@ public abstract class Animal implements Entity, AnimalInfo {
 			DeadAction(dt);
 			break;
 		}
-		if(true /*TODO: esta la pos fuera del mapa?*/) {
-			// Falta las dimensiones
-			pos = mapAdjustment(0.0, 0.0);
+		
+		double w = regionMngr.getWidth();
+		double h = regionMngr.getHeight();
+		double x = pos.getX();
+		double y = pos.getY();
+		
+		if (x < 0 || x >= w || y < 0 || y >= h) {
+			adjustPosition();
 			setState(State.NORMAL);
 		}
-		if(energy == 0.0 || age > maxAge) {
+		
+		if (energy <= 0.0 || age > maxAge) {
 			setState(State.DEAD);
 		}
-		if(state != State.DEAD) {
-			updateEnergy(regionMngr.getFood(this, dt));
-		}
 		
+		if (getState() != State.DEAD) {
+			double food = regionMngr.getFood(this, dt);
+			updateEnergy(energy + food);
+		}
 	}
+	
 	
 	protected boolean inSightRange(Animal a) {
-		return a.getPosition().distanceTo(this.getPosition()) > this.sightRange;
+		if (a == null) return false;
+		return this.getPosition().distanceTo(a.getPosition()) <= this.sightRange;
 	}
 	
+	
 	private void destinationCheck() {
-		int width = 0, height = 0;
-		if(getPosition().distanceTo(getDestination()) < Constants.COLLISION_RANGE) {
-			// TODO: cambiar por regMngr
-			this.dest = randomInMapVector(width, height);
+		if (dest == null || getPosition().distanceTo(dest) < 8.0) {
+			dest = createRandomPosition();
 		}
 	}
 	
 	// ----------------------------------
-	// NORMAL ACTIONS
+	// ACCIONES
 	// ----------------------------------
 	
 	protected void firstActionNormal(double dt) {
 		destinationCheck();
-		updateStats(dt, 1.0);
+		move(speed * dt * Math.exp((energy - 100.0) * 0.007));
+		updateAge(dt);
+		updateEnergy(energy - foodDropRate * dt);
+		updateDesire(desire + desireIncreaseRate * dt);
 	}
 	
 	protected void NormalAction(double dt) {
 		firstActionNormal(dt);
 		setState(State.NORMAL);
 	}
-	// ----------------------------------
-	// DANGER ACTIONS
-	// ----------------------------------
 	
 	protected abstract void DangerAction(double dt);
-	
-	// ----------------------------------
-	// MATE ACTIONS
-	// ----------------------------------
+	protected abstract void HungerAction(double dt);
 	
 	protected void updateStats(double dt, double spFoodDropBoostFactor) {
-		move(boostFactor*getSpeed()*dt*Math.exp((getEnergy()-100.0)*0.007));
+		double s = boostFactor * speed * dt * Math.exp((energy - 100.0) * 0.007);
+		move(s);
 		updateAge(dt);
-		updateEnergy(energy - foodDropRate*spFoodDropBoostFactor*dt);
-		updateDesire(desire + desireIncreaseRate*dt);
+		updateEnergy(energy - foodDropRate * spFoodDropBoostFactor * dt);
+		updateDesire(desire + desireIncreaseRate * dt);
 	}
 	
 	protected void MateAction(double dt) {
-		if((mateTarget != null && getState() == State.DEAD) || 
-				!inSightRange(mateTarget)) {
+		if (mateTarget != null && (mateTarget.getState() == State.DEAD || !inSightRange(mateTarget))) {
 			mateTarget = null;
 		}
-		if(mateTarget == null) {
-			//TODO: Buscar animal para emparejarse
-			if(true /*No lo encuentra*/){
+		if (mateTarget == null) {
+			List<Animal> candidates = regionMngr.getAnimalsInRange(this, a -> a.getGeneticCode().equals(this.geneticCode));
+			mateTarget = mateStrategy.select(this, candidates);
+			if (mateTarget == null) {
 				firstActionNormal(dt);
 			}
-		}else {
+		} 
+		if (mateTarget != null) {
 			dest = mateTarget.getPosition();
 			updateStats(dt, foodDropBoostFactor);
 			MatePairing();
-			// FALTA EN LAS SUBCLASES
+			// More in the sub-classes
 		}
 	}
 	
-	protected void MatePairing() {
+	private void MatePairing() {
 		if(pos.distanceTo(mateTarget.pos) < 8.0) {
-			desire = 0; mateTarget.desire = 0;
-			baby = (Utils.RAND.nextDouble() <= 0.9) ? newBaby(mateTarget) : null;
+			desire = 0.0; mateTarget.desire = 0.0;
+			if (baby == null && Utils.RAND.nextDouble() < 0.9) {
+				baby = newBaby(mateTarget);
+			}
 			mateTarget = null;
 		}
 	}
 	
 	protected abstract Animal newBaby(Animal p2);
-	
-	
-	// ----------------------------------
-	// OTHER ACTIONS
-	// ----------------------------------
-	
-	protected abstract void HungerAction(double dt);
 	protected abstract void DeadAction(double dt);
 	
 	// ----------------------------------
-	// STATE ACTIONS
+	// GESTIÓN DE ESTADOS
 	// ----------------------------------
 	
 	protected void setState(State state) {
@@ -275,16 +273,18 @@ public abstract class Animal implements Entity, AnimalInfo {
 	protected abstract void setHungerStateAction();
 	protected abstract void setDeadStateAction();
 	
+	// ----------------------------------
+	// MÉTODOS PÚBLICOS / IMPLEMENTACIÓN
+	// ----------------------------------
 	
 	public void init(AnimalMapView regMngr) {
-		double width = 0, height = 0;
 		this.regionMngr = regMngr;
-		if(this.pos == null) {
-			//TODO: cambiar a lo de regMngr
-			this.pos = randomInMapVector(width, height);
+		if (this.pos == null) {
+			this.pos = createRandomPosition();
+		} else {
+			adjustPosition();
 		}
-		else this.pos = mapAdjustment(width, height);
-		this.dest = randomInMapVector(width, height);
+		this.dest = createRandomPosition();
 	}
 	
 	public Animal deliverBaby() {
@@ -297,90 +297,57 @@ public abstract class Animal implements Entity, AnimalInfo {
 		pos = pos.plus(dest.minus(pos).direction().scale(speed));
 	}
 	
-	
-	
 	public JSONObject asJSON() {
+		JSONObject jo = new JSONObject();
 		
-		JSONObject jo1 = new JSONObject();
-
-		jo1.put("pos", posToPair());
-		jo1.put("gcode", geneticCode);
-		jo1.put("diet", diet);
-		jo1.put("state", state);
+		jo.put("pos", pos.asJSONArray());
+		jo.put("gcode", geneticCode);
+		jo.put("diet", diet);
+		jo.put("state", state);
 		
-		return jo1;
-	}
-	
-	
-	@Override
-	public String getGeneticCode() {
-		return geneticCode;
+		return jo;
 	}
 	
 	@Override
-	public Diet getDiet() {
-		return diet;
-	}
-
-	@Override
-	public State getState() {
-		return state;
-	}
-
-	@Override
-	public Vector2D getPosition() {
-		return new Vector2D(pos);
-	}
-
-	public Vector2D getDestination() {
-		return new Vector2D(dest);
-	}
+	public String getGeneticCode() { return geneticCode; }
 	
-	protected void setDestination(Vector2D newDest) {
-		dest = newDest;
-	}
+	@Override
+	public Diet getDiet() { return diet; }
 
 	@Override
-	public double getEnergy() {
-		return energy;
-	}
+	public State getState() { return state; }
+
+	@Override
+	public Vector2D getPosition() { return pos; } // Vector2D es inmutable, seguro devolverlo
+
+	public Vector2D getDestination() { return dest; }
+	
+	protected void setDestination(Vector2D newDest) { dest = newDest; }
+
+	@Override
+	public double getEnergy() { return energy; }
 	
 	protected void updateEnergy(double newEnergy) {
 		energy = Utils.constrainValueInRange(newEnergy, 0.0, 100.0);
 	}
 
 	@Override
-	public double getSpeed() {
-		return speed;
-	}
+	public double getSpeed() { return speed; }
 
 	@Override
-	public double getAge() {
-		return age;
-	}
+	public double getAge() { return age; }
 	
-	protected void updateAge(double addedAge) {
-		age += addedAge;
-	}
+	protected void updateAge(double addedAge) { age += addedAge; }
 
-	protected double getDesire() {
-		return desire;
-	}
+	protected double getDesire() { return desire; }
 	
 	protected void updateDesire(double newDesire) {
-		desire = Utils.constrainValueInRange(newDesire, 0.0, 100.0);;
+		desire = Utils.constrainValueInRange(newDesire, 0.0, 100.0);
 	}
 
 	@Override
-	public double getSightRange() {
-		return sightRange;
-	}
+	public double getSightRange() { return sightRange; }
 
 	@Override
-    public boolean isPregnant() {
-        return baby != null;
-    }
-	
-	
-	
+    public boolean isPregnant() { return baby != null; }
 }

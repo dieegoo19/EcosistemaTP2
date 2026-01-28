@@ -1,5 +1,8 @@
 package simulator.model.elements;
 import simulator.model.selection.*;
+
+import java.util.List;
+
 import simulator.misc.Utils;
 import simulator.misc.Vector2D;
 import simulator.model.Constants;
@@ -8,7 +11,7 @@ import simulator.model.State;
 import simulator.model.selection.*;
 
 public class Sheep extends Animal{
-	
+		
 	private Animal dangerSource;
 	private SelectionStrategy dangerStrategy;
 	
@@ -24,7 +27,7 @@ public class Sheep extends Animal{
 	protected Sheep(Sheep p1, Animal p2) {
 		super(p1, p2);
 		this.dangerSource = null;
-		this.dangerStrategy = p1.getDangerStrategy();
+		this.dangerStrategy = p1.dangerStrategy;
 	}
 	
 	private Sheep(Sheep other) {
@@ -37,10 +40,16 @@ public class Sheep extends Animal{
 		return new Sheep(this);
 	}
 	
+	private void findDangerousTargets() {
+		List<Animal> predators = regionMngr.getAnimalsInRange(this, a -> a.getDiet() == Diet.CARNIVORE);
+		dangerSource = dangerStrategy.select(this, predators);
+	}
+	
+	
 	@Override
 	protected void setNormalStateAction() {
 		if(dangerSource == null) {
-			//TODO: Buscar nuevo animal peligroso
+			findDangerousTargets();
 		}
 		if(dangerSource != null) {
 			super.setState(State.DANGER);
@@ -51,7 +60,7 @@ public class Sheep extends Animal{
 
 	@Override
 	protected void DangerAction(double dt) {
-		if(dangerSource != null && getState() == State.DEAD) {
+		if(dangerSource != null && dangerSource.getState() == State.DEAD) {
 			dangerSource = null;
 		}
 		if(dangerSource == null) {
@@ -67,7 +76,7 @@ public class Sheep extends Animal{
 	@Override
 	protected void setDangerStateAction() {
 		if(dangerSource == null || !inSightRange(dangerSource)) {
-			//TODO: Buscar nuevo animal peligroso
+			findDangerousTargets();
 			if(dangerSource == null) {
 				if(getDesire() < 65.0) {
 					setState(State.NORMAL);
@@ -92,7 +101,7 @@ public class Sheep extends Animal{
 	@Override
 	protected void setMateStateAction() {
 		if(dangerSource == null) {
-			//TODO: Buscar nuevo animal peligroso
+			findDangerousTargets();
 		}
 		if(dangerSource != null) {
 			super.setState(State.DANGER);
@@ -112,13 +121,4 @@ public class Sheep extends Animal{
 	
 	@Override
 	protected void setDeadStateAction() {}
-	
-
-	private SelectionStrategy getDangerStrategy() {
-		return this.dangerStrategy;
-	}
-	
-	public Animal getDangerSource() {
-		return this.dangerSource;
-	}
 }
