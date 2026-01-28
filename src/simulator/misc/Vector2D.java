@@ -1,8 +1,4 @@
 package simulator.misc;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import org.json.JSONArray;
 
 public class Vector2D {
@@ -26,26 +22,6 @@ public class Vector2D {
 		this.x = x;
 		this.y = y;
 	}
-	
-	public static Vector2D randomInMapVector (double width, double height) {
-		return new Vector2D((width - 1) * Utils.RAND.nextDouble(), (height - 1) * Utils.RAND.nextDouble());
-	}
-	
-	
-	public void mapAdjustment(double width, double height) {
-		while (x >= width) x = (x - width);  
-		while (x < 0) x = (x + width);  
-		while (y >= height) y = (y - height);  
-		while (y < 0) y = (y + height);
-	}
-	
-	
-	public List<Double> vectorToPair(){
-		List<Double> ret = new ArrayList<Double>(2);
-		ret.add(x); ret.add(y);
-		return ret;
-	}
-	
 	
 	// return the inner product of this Vector a and b
 	public double dot(Vector2D that) {

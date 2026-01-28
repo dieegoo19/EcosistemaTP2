@@ -2,6 +2,7 @@ package simulator.model.elements;
 import simulator.model.selection.*;
 import simulator.misc.Utils;
 import simulator.misc.Vector2D;
+import simulator.model.Constants;
 import simulator.model.Diet;
 import simulator.model.State;
 import simulator.model.selection.*;
@@ -12,7 +13,10 @@ public class Sheep extends Animal{
 	private SelectionStrategy dangerStrategy;
 	
 	public Sheep(SelectionStrategy mateStrategy, SelectionStrategy dangerStrategy,  Vector2D pos) {
-		super("Sheep", Diet.HERBIVORE, 40.0, 35.0, mateStrategy, pos);
+		super(Constants.SHEEP_GENETIC_CODE, Diet.HERBIVORE, 40.0, 35.0, mateStrategy, pos, 
+				Constants.FOOD_DROP_RATE_SHEEP, Constants.DESIRE_INCREASE_RATE_SHEEP, 
+				Constants.BOOST_FACTOR_SHEEP, Constants.MAX_AGE_SHEEP, 
+				Constants.FOOD_DROP_BOOST_FACTOR_SHEEP);
 		this.dangerSource = null;
 		this.dangerStrategy = dangerStrategy;
 	}
@@ -22,13 +26,27 @@ public class Sheep extends Animal{
 		this.dangerSource = null;
 		this.dangerStrategy = p1.getDangerStrategy();
 	}
-
+	
+	private Sheep(Sheep other) {
+		super(other);
+		this.dangerSource = other.dangerSource;
+		this.dangerStrategy = other.dangerStrategy;
+	}
+	
+	protected Sheep copyOf() {
+		return new Sheep(this);
+	}
+	
 	@Override
-	protected void NormalAction(double dt) {
-		super.NormalAction(dt);
-		super.updateEnergy(super.getEnergy() - 20.0*dt);
-		super.updateDesire(super.getDesire() - 40.0*dt);
-		setState(State.NORMAL);
+	protected void setNormalStateAction() {
+		if(dangerSource == null) {
+			//TODO: Buscar nuevo animal peligroso
+		}
+		if(dangerSource != null) {
+			super.setState(State.DANGER);
+		}else if(getDesire() > 65.0) {
+			super.setState(State.MATE);
+		}
 	}
 
 	@Override
@@ -37,31 +55,63 @@ public class Sheep extends Animal{
 			dangerSource = null;
 		}
 		if(dangerSource == null) {
-			this.NormalAction(dt);
+			firstActionNormal(dt);
 		}
 		else {
-			getPosition().plus(getPosition().minus(dangerSource.getPosition()).direction());
+			setDestination(getPosition().plus(getPosition().minus(dangerSource.getPosition()).direction()));
+			updateStats(dt, foodDropBoostFactor);
 		}
-		
+		setState(State.DANGER);
+	}
+	
+	@Override
+	protected void setDangerStateAction() {
+		if(dangerSource == null || !inSightRange(dangerSource)) {
+			//TODO: Buscar nuevo animal peligroso
+			if(dangerSource == null) {
+				if(getDesire() < 65.0) {
+					setState(State.NORMAL);
+				}
+				else {
+					setState(State.MATE);
+				}
+			}
+		}
 	}
 
 	@Override
 	protected void MateAction(double dt) {
-		// TODO Auto-generated method stub
-		
+		super.MateAction(dt);
+		setState(State.MATE);
 	}
+	
+	protected Animal newBaby(Animal p2) {
+		return new Sheep(this, p2);
+	}
+	
+	@Override
+	protected void setMateStateAction() {
+		if(dangerSource == null) {
+			//TODO: Buscar nuevo animal peligroso
+		}
+		if(dangerSource != null) {
+			super.setState(State.DANGER);
+		}else if(getDesire() < 65.0) {
+			super.setState(State.NORMAL);
+		}
+	}
+	
+	@Override
+	protected void HungerAction(double dt) {}
 
 	@Override
-	protected void HungerAction(double dt) {
-		
-		
-	}
-
+	protected void setHungerStateAction() {}
+	
 	@Override
-	protected void DeadAction(double dt) {
-		// TODO Auto-generated method stub
-		
-	}
+	protected void DeadAction(double dt) {}
+	
+	@Override
+	protected void setDeadStateAction() {}
 	
 
 	private SelectionStrategy getDangerStrategy() {
@@ -71,39 +121,4 @@ public class Sheep extends Animal{
 	public Animal getDangerSource() {
 		return this.dangerSource;
 	}
-
-	@Override
-	protected void setNormalStateAction() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	protected void setDangerStateAction() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	protected void setMateStateAction() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	protected void setHungerStateAction() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	protected void setDeadStateAction() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	
-
-	
-
 }
