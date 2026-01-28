@@ -1,4 +1,5 @@
-package simulator.model;
+package simulator.model.region;
+import simulator.model.*;
 
 import simulator.misc.Utils;
 import simulator.model.elements.AnimalInfo;
@@ -24,12 +25,9 @@ public class DynamicSupplyRegion extends Region{
 
 	@Override
 	public void update(double dt) {
-		// probabilidad 50/50
-		// TODO: revisar con el profe
-		if(Utils.RAND.nextDouble() > 0.5) {
+		if(Utils.RAND.nextDouble() < 0.5) {
 			food *= dt*growFactor;
 		}
-		
 	}
 	
 }

@@ -30,15 +30,6 @@ public class Sheep extends Animal{
 		this.dangerStrategy = p1.dangerStrategy;
 	}
 	
-	private Sheep(Sheep other) {
-		super(other);
-		this.dangerSource = other.dangerSource;
-		this.dangerStrategy = other.dangerStrategy;
-	}
-	
-	protected Sheep copyOf() {
-		return new Sheep(this);
-	}
 	
 	private void findDangerousTargets() {
 		List<Animal> predators = regionMngr.getAnimalsInRange(this, a -> a.getDiet() == Diet.CARNIVORE);
@@ -53,7 +44,7 @@ public class Sheep extends Animal{
 		}
 		if(dangerSource != null) {
 			super.setState(State.DANGER);
-		}else if(getDesire() > 65.0) {
+		}else if(getDesire() > Constants.DESIRE_THRESHOLD_SHEEP) {
 			super.setState(State.MATE);
 		}
 	}
@@ -78,7 +69,7 @@ public class Sheep extends Animal{
 		if(dangerSource == null || !inSightRange(dangerSource)) {
 			findDangerousTargets();
 			if(dangerSource == null) {
-				if(getDesire() < 65.0) {
+				if(getDesire() < Constants.DESIRE_THRESHOLD_SHEEP) {
 					setState(State.NORMAL);
 				}
 				else {
@@ -105,7 +96,7 @@ public class Sheep extends Animal{
 		}
 		if(dangerSource != null) {
 			super.setState(State.DANGER);
-		}else if(getDesire() < 65.0) {
+		}else if(getDesire() < Constants.DESIRE_THRESHOLD_SHEEP) {
 			super.setState(State.NORMAL);
 		}
 	}

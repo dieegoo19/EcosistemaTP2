@@ -6,9 +6,7 @@ import simulator.model.elements.Animal;
 
 public class SelectClosest implements SelectionStrategy{
 
-	public SelectClosest() {
-		// TODO Auto-generated constructor stub
-	}
+	public SelectClosest() {}
 
 	@Override
 	public Animal select(Animal a, List<Animal> as) {

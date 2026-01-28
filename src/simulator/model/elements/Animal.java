@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import simulator.misc.Utils;
 import simulator.misc.Vector2D;
 import simulator.model.AnimalMapView;
+import simulator.model.Constants;
 import simulator.model.Diet;
 import simulator.model.Entity;
 import simulator.model.State;
@@ -46,7 +47,7 @@ public abstract class Animal implements Entity, AnimalInfo {
 		this.mateStrategy = mateStrategy;
 		this.pos = pos;
 		this.state = State.NORMAL;
-		this.energy = 100.0;
+		this.energy = Constants.INIT_ENERGY;
 		this.desire = 0.0;
 		this.dest = null;
 		this.mateTarget = null;
@@ -63,10 +64,10 @@ public abstract class Animal implements Entity, AnimalInfo {
 		this.age = 0.0;
 		this.geneticCode = p1.getGeneticCode();
 		this.diet = p1.getDiet();
-		this.sightRange = Utils.getRandomizedParameter((p1.getSightRange()+p2.getSightRange())/2, 0.2);
-		this.speed = Utils.getRandomizedParameter((p1.getSpeed()+p2.getSpeed())/2, 0.2);
+		this.sightRange = Utils.getRandomizedParameter((p1.getSightRange()+p2.getSightRange())/2, Constants.MUTATION_TOLERANCE);
+		this.speed = Utils.getRandomizedParameter((p1.getSpeed()+p2.getSpeed())/2, Constants.MUTATION_TOLERANCE);
 		this.mateStrategy = p2.mateStrategy;
-		this.pos = p1.getPosition().plus(Vector2D.getRandomVector(-1,1).scale(60.0*(Utils.RAND.nextGaussian()+1)));
+		this.pos = p1.getPosition().plus(Vector2D.getRandomVector(-1,1).scale(Constants.NEARBY_FACTOR*(Utils.RAND.nextGaussian()+1)));
 		this.state = State.NORMAL;
 		this.energy = (p1.getEnergy() + p2.getEnergy()) / 2.0;
 		this.desire = 0.0;
@@ -81,35 +82,15 @@ public abstract class Animal implements Entity, AnimalInfo {
 		this.foodDropBoostFactor = p1.foodDropBoostFactor;
 	}
 	
-	protected Animal(Animal other) {
-        this.geneticCode = other.geneticCode;
-        this.diet = other.diet;
-        this.state = other.state;
-        this.pos = other.pos;
-        this.dest = other.dest;
-        this.energy = other.energy;
-        this.speed = other.speed;
-        this.age = other.age;
-        this.desire = other.desire;
-        this.sightRange = other.sightRange;
-        this.mateTarget = other.mateTarget;
-        this.baby = other.baby;
-        this.regionMngr = other.regionMngr;
-        this.mateStrategy = other.mateStrategy;
-        this.foodDropRate = other.foodDropRate;
-		this.desireIncreaseRate = other.desireIncreaseRate;
-		this.boostFactor = other.boostFactor;
-		this.foodDropBoostFactor = other.foodDropBoostFactor;
-		this.maxAge = other.maxAge;
-    }
-	
-	protected abstract Animal copyOf();
+	protected void dead() {
+		state = State.DEAD;
+	}
 	
 	private Vector2D createRandomPosition() {
 		if (regionMngr == null) return new Vector2D(0,0);
 		double w = regionMngr.getWidth();
 		double h = regionMngr.getHeight();
-		return new Vector2D(Utils.RAND.nextDouble() * (w), Utils.RAND.nextDouble() * (h));
+		return new Vector2D(Utils.RAND.nextDouble() * (w-1), Utils.RAND.nextDouble() * (h-1));
 	}
 	
 	private void adjustPosition() {
@@ -177,7 +158,7 @@ public abstract class Animal implements Entity, AnimalInfo {
 	
 	
 	private void destinationCheck() {
-		if (dest == null || getPosition().distanceTo(dest) < 8.0) {
+		if (dest == null || getPosition().distanceTo(dest) < Constants.COLLISION_RANGE) {
 			dest = createRandomPosition();
 		}
 	}
@@ -188,7 +169,7 @@ public abstract class Animal implements Entity, AnimalInfo {
 	
 	protected void firstActionNormal(double dt) {
 		destinationCheck();
-		move(speed * dt * Math.exp((energy - 100.0) * 0.007));
+		move(speed * dt * Math.exp((energy - Constants.INIT_ENERGY) * Constants.HUNGER_DECAY_EXP_FACTOR));
 		updateAge(dt);
 		updateEnergy(energy - foodDropRate * dt);
 		updateDesire(desire + desireIncreaseRate * dt);
@@ -203,7 +184,7 @@ public abstract class Animal implements Entity, AnimalInfo {
 	protected abstract void HungerAction(double dt);
 	
 	protected void updateStats(double dt, double spFoodDropBoostFactor) {
-		double s = boostFactor * speed * dt * Math.exp((energy - 100.0) * 0.007);
+		double s = boostFactor * speed * dt * Math.exp((energy - Constants.INIT_ENERGY) * Constants.HUNGER_DECAY_EXP_FACTOR);
 		move(s);
 		updateAge(dt);
 		updateEnergy(energy - foodDropRate * spFoodDropBoostFactor * dt);
@@ -230,7 +211,7 @@ public abstract class Animal implements Entity, AnimalInfo {
 	}
 	
 	private void MatePairing() {
-		if(pos.distanceTo(mateTarget.pos) < 8.0) {
+		if(pos.distanceTo(mateTarget.pos) < Constants.COLLISION_RANGE) {
 			desire = 0.0; mateTarget.desire = 0.0;
 			if (baby == null && Utils.RAND.nextDouble() < 0.9) {
 				baby = newBaby(mateTarget);
@@ -318,8 +299,7 @@ public abstract class Animal implements Entity, AnimalInfo {
 	public State getState() { return state; }
 
 	@Override
-	public Vector2D getPosition() { return pos; } // Vector2D es inmutable, seguro devolverlo
-
+	public Vector2D getPosition() { return pos; }
 	public Vector2D getDestination() { return dest; }
 	
 	protected void setDestination(Vector2D newDest) { dest = newDest; }
@@ -328,7 +308,7 @@ public abstract class Animal implements Entity, AnimalInfo {
 	public double getEnergy() { return energy; }
 	
 	protected void updateEnergy(double newEnergy) {
-		energy = Utils.constrainValueInRange(newEnergy, 0.0, 100.0);
+		energy = Utils.constrainValueInRange(newEnergy, 0.0, Constants.MAX_ENERGY);
 	}
 
 	@Override
@@ -342,7 +322,7 @@ public abstract class Animal implements Entity, AnimalInfo {
 	protected double getDesire() { return desire; }
 	
 	protected void updateDesire(double newDesire) {
-		desire = Utils.constrainValueInRange(newDesire, 0.0, 100.0);
+		desire = Utils.constrainValueInRange(newDesire, 0.0, Constants.MAX_DESIRE);
 	}
 
 	@Override

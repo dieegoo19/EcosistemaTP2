@@ -16,10 +16,10 @@ public class Wolf extends Animal{
 	private SelectionStrategy huntingStrategy;
 	
 	public Wolf(SelectionStrategy mateStrategy, SelectionStrategy dangerStrategy,  Vector2D pos) {
-		super(Constants.SHEEP_GENETIC_CODE, Diet.HERBIVORE, 50.0, 60.0, mateStrategy, pos, 
-				Constants.FOOD_DROP_RATE_SHEEP, Constants.DESIRE_INCREASE_RATE_SHEEP, 
-				Constants.BOOST_FACTOR_SHEEP, Constants.MAX_AGE_SHEEP, 
-				Constants.FOOD_DROP_BOOST_FACTOR_SHEEP);
+		super(Constants.WOLF_GENETIC_CODE, Diet.CARNIVORE, 50.0, 60.0, mateStrategy, pos, 
+				Constants.FOOD_DROP_RATE_WOLF, Constants.DESIRE_INCREASE_RATE_WOLF, 
+				Constants.BOOST_FACTOR_WOLF, Constants.MAX_AGE_WOLF, 
+				Constants.FOOD_DROP_BOOST_FACTOR_WOLF);
 		this.huntTarget = null;
 		this.huntingStrategy = dangerStrategy;
 	}
@@ -30,28 +30,17 @@ public class Wolf extends Animal{
 		this.huntingStrategy = p1.huntingStrategy;
 	}
 	
-	private Wolf(Wolf other) {
-		super(other);
-		this.huntTarget = other.huntTarget;
-		this.huntingStrategy = other.huntingStrategy;
-	}
-	
-	protected Wolf copyOf() {
-		return new Wolf(this);
-	}
-	
 	private void findHuntingTargets() {
-		List<Animal> predators = regionMngr.getAnimalsInRange(this, a -> a.getDiet() == Diet.HERBIVORE);
-		huntTarget = huntingStrategy.select(this, predators);
+		List<Animal> preys = regionMngr.getAnimalsInRange(this, a -> a.getDiet() == Diet.HERBIVORE);
+		huntTarget = huntingStrategy.select(this, preys);
 	}
-	
 	
 	@Override
 	protected void setNormalStateAction() {
-		if(getEnergy() < 50.0) {
+		if(getEnergy() < Constants.FOOD_EAT_VALUE_WOLF) {
 			setState(State.HUNGER);
 		}
-		else if(getDesire() > 65.0) {
+		else if(getDesire() > Constants.DESIRE_THRESHOLD_WOLF) {
 			super.setState(State.MATE);
 		}
 	}
@@ -74,21 +63,44 @@ public class Wolf extends Animal{
 	
 	@Override
 	protected void setMateStateAction() {
-		if(huntTarget == null) {
-			findHuntingTargets();
-		}
-		if(huntTarget != null) {
-			super.setState(State.DANGER);
+		if(getEnergy() < 50.0) {
+			super.setState(State.HUNGER);
 		}else if(getDesire() < 65.0) {
 			super.setState(State.NORMAL);
 		}
 	}
 	
 	@Override
-	protected void HungerAction(double dt) {}
+	protected void HungerAction(double dt) {
+		if(huntTarget == null || huntTarget.getState() == State.DEAD) {
+			findHuntingTargets();
+		}
+		if(huntTarget == null) {
+			firstActionNormal(dt);
+		}else {
+			setDestination(huntTarget.getPosition());
+			updateStats(dt, foodDropBoostFactor);
+			Hunt();
+		}
+		if(getEnergy() > 50.0) setState(State.HUNGER);
+	}
+	
+	private void Hunt() {
+		if(getPosition().distanceTo(huntTarget.getPosition()) < Constants.COLLISION_RANGE) {
+			huntTarget.dead();
+			huntTarget = null;
+			updateEnergy(getEnergy() + 50.0);
+		}
+	}
 
 	@Override
-	protected void setHungerStateAction() {}
+	protected void setHungerStateAction() {
+		if(getDesire() < Constants.DESIRE_THRESHOLD_WOLF) {
+			setState(State.NORMAL);
+		}else {
+			setState(State.MATE);
+		}
+	}
 	
 	@Override
 	protected void DeadAction(double dt) {}

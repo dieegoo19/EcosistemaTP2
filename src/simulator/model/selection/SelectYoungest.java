@@ -6,14 +6,19 @@ import simulator.model.elements.Animal;
 
 public class SelectYoungest implements SelectionStrategy{
 
-	public SelectYoungest() {
-		// TODO Auto-generated constructor stub
-	}
+	public SelectYoungest() {}
 
 	@Override
 	public Animal select(Animal a, List<Animal> as) {
-		// TODO Auto-generated method stub
-		return null;
+		Animal ret = as.getFirst();
+		double minAge = as.getFirst().getAge();
+		for(Animal an: as) {
+			if(minAge > an.getAge()) { 
+				ret = an;
+				minAge = an.getAge();
+			}
+		}
+		return ret;
 	}
 
 }

@@ -1,4 +1,5 @@
-package simulator.model;
+package simulator.model.region;
+import simulator.model.*;
 
 import simulator.model.elements.AnimalInfo;
 
