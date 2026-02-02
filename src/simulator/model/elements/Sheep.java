@@ -15,6 +15,9 @@ public class Sheep extends Animal{
 	private Animal dangerSource;
 	private SelectionStrategy dangerStrategy;
 	
+	// ----------------------------------------------------------
+	// CONSTRUCTORES
+	// ----------------------------------------------------------
 	public Sheep(SelectionStrategy mateStrategy, SelectionStrategy dangerStrategy,  Vector2D pos) throws IllegalArgumentException{
 		super(Constants.SHEEP_GENETIC_CODE, Diet.HERBIVORE, 40.0, 35.0, mateStrategy, pos, 
 				Constants.FOOD_DROP_RATE_SHEEP, Constants.DESIRE_INCREASE_RATE_SHEEP, 
@@ -29,16 +32,42 @@ public class Sheep extends Animal{
 		this.dangerSource = null;
 		this.dangerStrategy = p1.dangerStrategy;
 	}
-	
-	
-	private void findDangerousTargets() {
-		List<Animal> predators = regionMngr.getAnimalsInRange(this, a -> a.getDiet() == Diet.CARNIVORE);
-		dangerSource = dangerStrategy.select(this, predators);
+
+	@Override
+	protected Animal newBaby(Animal p2) {
+		return new Sheep(this, p2);
 	}
 	
-	
+	// ----------------------------------------------------------
+	// IMPLEMENTACIÓN DE HOOKS DE ESTADO (SET)
+	// ----------------------------------------------------------
 	@Override
 	protected void setNormalStateAction() {
+		super.setNormalStateAction();
+		this.dangerSource = null;
+	}
+
+	@Override
+	protected void setDangerStateAction() {
+		super.setMateNull();
+	}
+
+	@Override
+	protected void setMateStateAction() {
+		this.dangerSource = null;
+	}
+	
+	@Override
+	protected void setHungerStateAction() {}
+	
+	@Override
+	protected void setDeadStateAction() {}
+
+	// ----------------------------------------------------------
+	// LÓGICA DE TRANSICIÓN DE ESTADOS (CHANGE)
+	// ----------------------------------------------------------
+	@Override
+	protected void changeNormalStateAction() {
 		if(dangerSource == null) {
 			findDangerousTargets();
 		}
@@ -48,24 +77,20 @@ public class Sheep extends Animal{
 			super.setState(State.MATE);
 		}
 	}
-
-	@Override
-	protected void DangerAction(double dt) {
-		if(dangerSource != null && dangerSource.getState() == State.DEAD) {
-			dangerSource = null;
-		}
-		if(dangerSource == null) {
-			firstActionNormal(dt);
-		}
-		else {
-			setDestination(getPosition().plus(getPosition().minus(dangerSource.getPosition()).direction()));
-			updateStats(dt, foodDropBoostFactor);
-		}
-		setState(State.DANGER);
-	}
 	
 	@Override
-	protected void setDangerStateAction() {
+	protected void changeMateStateAction() {
+		if(dangerSource == null) {
+			findDangerousTargets();
+		}
+		if(dangerSource != null) {
+			super.setState(State.DANGER);
+		}else if(getDesire() < Constants.DESIRE_THRESHOLD_SHEEP) {
+			super.setState(State.NORMAL);
+		}
+	}
+	
+	private void changeDangerStateAction() {
 		if(dangerSource == null || !inSightRange(dangerSource)) {
 			findDangerousTargets();
 			if(dangerSource == null) {
@@ -79,37 +104,35 @@ public class Sheep extends Animal{
 		}
 	}
 
+	// ----------------------------------------------------------
+	// ACCIONES ESPECÍFICAS
+	// ----------------------------------------------------------
 	@Override
-	protected void MateAction(double dt) {
-		super.MateAction(dt);
-		setState(State.MATE);
-	}
-	
-	protected Animal newBaby(Animal p2) {
-		return new Sheep(this, p2);
-	}
-	
-	@Override
-	protected void setMateStateAction() {
+	protected void DangerAction(double dt) {
+		if(dangerSource != null && dangerSource.getState() == State.DEAD) {
+			dangerSource = null;
+		}
 		if(dangerSource == null) {
-			findDangerousTargets();
+			firstActionNormal(dt);
 		}
-		if(dangerSource != null) {
-			super.setState(State.DANGER);
-		}else if(getDesire() < Constants.DESIRE_THRESHOLD_SHEEP) {
-			super.setState(State.NORMAL);
+		else {
+			setDestination(getPosition().plus(getPosition().minus(dangerSource.getPosition()).direction()));
+			updateStats(dt, foodDropBoostFactor);
 		}
+		changeDangerStateAction();
 	}
 	
 	@Override
 	protected void HungerAction(double dt) {}
 
 	@Override
-	protected void setHungerStateAction() {}
-	
-	@Override
 	protected void DeadAction(double dt) {}
 	
-	@Override
-	protected void setDeadStateAction() {}
+	// ----------------------------------------------------------
+	// MÉTODOS AUXILIARES
+	// ----------------------------------------------------------
+	private void findDangerousTargets() {
+		List<Animal> predators = regionMngr.getAnimalsInRange(this, a -> a.getDiet() == Diet.CARNIVORE);
+		dangerSource = dangerStrategy.select(this, predators);
+	}
 }

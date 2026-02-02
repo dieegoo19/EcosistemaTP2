@@ -15,6 +15,9 @@ public class Wolf extends Animal{
 	private Animal huntTarget;
 	private SelectionStrategy huntingStrategy;
 	
+	// ----------------------------------------------------------
+	// CONSTRUCTORES
+	// ----------------------------------------------------------
 	public Wolf(SelectionStrategy mateStrategy, SelectionStrategy dangerStrategy,  Vector2D pos) throws IllegalArgumentException{
 		super(Constants.WOLF_GENETIC_CODE, Diet.CARNIVORE, 50.0, 60.0, mateStrategy, pos, 
 				Constants.FOOD_DROP_RATE_WOLF, Constants.DESIRE_INCREASE_RATE_WOLF, 
@@ -30,13 +33,41 @@ public class Wolf extends Animal{
 		this.huntingStrategy = p1.huntingStrategy;
 	}
 	
-	private void findHuntingTargets() {
-		List<Animal> preys = regionMngr.getAnimalsInRange(this, a -> a.getDiet() == Diet.HERBIVORE);
-		huntTarget = huntingStrategy.select(this, preys);
+	@Override
+	protected Animal newBaby(Animal p2) {
+		return new Wolf(this, p2);
+	}
+	
+	// ----------------------------------------------------------
+	// IMPLEMENTACIÓN DE HOOKS DE ESTADO (SET)
+	// ----------------------------------------------------------
+	@Override
+	protected void setNormalStateAction() {
+		super.setNormalStateAction();
+		this.huntTarget = null;
+	}
+
+	@Override
+	protected void setMateStateAction() {
+		this.huntTarget = null;
+	}
+
+	@Override
+	protected void setHungerStateAction() {
+		super.setMateNull();
 	}
 	
 	@Override
-	protected void setNormalStateAction() {
+	protected void setDangerStateAction() {}
+
+	@Override
+	protected void setDeadStateAction() {}
+
+	// ----------------------------------------------------------
+	// LÓGICA DE TRANSICIÓN DE ESTADOS (CHANGE)
+	// ----------------------------------------------------------
+	@Override
+	protected void changeNormalStateAction() {
 		if(getEnergy() < Constants.FOOD_EAT_VALUE_WOLF) {
 			setState(State.HUNGER);
 		}
@@ -46,23 +77,7 @@ public class Wolf extends Animal{
 	}
 
 	@Override
-	protected void DangerAction(double dt) {}
-	
-	@Override
-	protected void setDangerStateAction() {}
-
-	@Override
-	protected void MateAction(double dt) {
-		super.MateAction(dt);
-		setState(State.MATE);
-	}
-	
-	protected Animal newBaby(Animal p2) {
-		return new Wolf(this, p2);
-	}
-	
-	@Override
-	protected void setMateStateAction() {
+	protected void changeMateStateAction() {
 		if(getEnergy() < 50.0) {
 			super.setState(State.HUNGER);
 		}else if(getDesire() < 65.0) {
@@ -70,6 +85,17 @@ public class Wolf extends Animal{
 		}
 	}
 	
+	private void changeHungerStateAction() {
+		if(getDesire() < Constants.DESIRE_THRESHOLD_WOLF) {
+			setState(State.NORMAL);
+		}else {
+			setState(State.MATE);
+		}
+	}
+
+	// ----------------------------------------------------------
+	// ACCIONES ESPECÍFICAS
+	// ----------------------------------------------------------
 	@Override
 	protected void HungerAction(double dt) {
 		if(huntTarget == null || huntTarget.getState() == State.DEAD) {
@@ -82,7 +108,21 @@ public class Wolf extends Animal{
 			updateStats(dt, foodDropBoostFactor);
 			Hunt();
 		}
-		if(getEnergy() > 50.0) setState(State.HUNGER);
+		if(getEnergy() > 50.0) changeHungerStateAction();
+	}
+	
+	@Override
+	protected void DangerAction(double dt) {}
+	
+	@Override
+	protected void DeadAction(double dt) {}
+	
+	// ----------------------------------------------------------
+	// MÉTODOS AUXILIARES
+	// ----------------------------------------------------------
+	private void findHuntingTargets() {
+		List<Animal> preys = regionMngr.getAnimalsInRange(this, a -> a.getDiet() == Diet.HERBIVORE);
+		huntTarget = huntingStrategy.select(this, preys);
 	}
 	
 	private void Hunt() {
@@ -92,19 +132,4 @@ public class Wolf extends Animal{
 			updateEnergy(getEnergy() + 50.0);
 		}
 	}
-
-	@Override
-	protected void setHungerStateAction() {
-		if(getDesire() < Constants.DESIRE_THRESHOLD_WOLF) {
-			setState(State.NORMAL);
-		}else {
-			setState(State.MATE);
-		}
-	}
-	
-	@Override
-	protected void DeadAction(double dt) {}
-	
-	@Override
-	protected void setDeadStateAction() {}
 }
