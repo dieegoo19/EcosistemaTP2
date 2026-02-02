@@ -1,8 +1,15 @@
 package simulator.model.region;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import simulator.model.*;
 import simulator.model.elements.Animal;
@@ -73,12 +80,42 @@ public class RegionManager implements AnimalMapView{
 
 	@Override
 	public double getFood(AnimalInfo a, double dt) {
-		return 0;
+		return this.animalRegion.get(a).getFood(a, dt);
+	}
+	
+	void updateAllRegions(double dt) {
+		for(int i = 0; i < rows; i++) {
+			for(int j = 0; j < cols; j++) {
+				this.regions[i][j].update(dt);
+			}
+		}
 	}
 
 	@Override
 	public List<Animal> getAnimalsInRange(Animal e, Predicate<Animal> filter) {
-		return null;
+	    Set<Region> regionesAnexas = new HashSet<>();
+	    
+	    double range = e.getSightRange();
+	    
+	    int maxCol = Math.min(regions.length - 1, (int) ((e.getPosition().getX() + range) / regionWidth));
+	    int minCol = Math.max(0, (int) ((e.getPosition().getX() - range) / regionWidth));
+	    int maxRow = Math.min(regions[0].length - 1, (int) ((e.getPosition().getY() + range) / regionHeight));
+	    int minRow = Math.max(0, (int) ((e.getPosition().getY() - range) / regionHeight));
+	    
+	    regionesAnexas.add(regions[maxCol][maxRow]);
+	    regionesAnexas.add(regions[maxCol][minRow]);
+	    regionesAnexas.add(regions[minCol][maxRow]);
+	    regionesAnexas.add(regions[minCol][minRow]);
+	    
+	    return regionesAnexas.stream()
+	    		// FLATMAP: "Para cada región, dame su Stream de animales y júntalos todos"
+	            .flatMap(region -> region.getAnimals().stream()) 
+	            // FILTER: "Para cada animal que pase por aquí, aplica esta condición"
+	            .filter(filter)
+	            // distinct() asegura que no haya duplicados en el resultado
+	            .distinct() 
+	            // COLLECT: "Toma todo lo que sobrevivió y mételo en una lista"
+	            .collect(Collectors.toList());
 	}
 	
 	private void addAnimal(Region r, Animal a) {
@@ -112,15 +149,28 @@ public class RegionManager implements AnimalMapView{
 	}
 	
 	private void updateAnimalRegion(Animal a) {
-		//TODO: REVISAR
 		int row = (int)(a.getPosition().getY()/this.regionHeight);
 		int col = (int)(a.getPosition().getX()/this.regionWidth);
-		Region aux = this.animalRegion.get(a);
-		if(!this.regions[row][col].equals(this.animalRegion.get(a))){
-			addAnimal(this.regions[row][col], a);
-			removeAnimal(aux, a);
+		Region regAct = this.animalRegion.get(a);
+		Region realReg = this.regions[row][col];
+		if(!realReg.equals(regAct)){
+			addAnimal(realReg, a);
+			removeAnimal(regAct, a);
 		}
-		
+	}
+	
+	public JSONObject asJSON() {
+		JSONArray arr = new JSONArray();
+		for(int i = 0; i < rows; i++) {
+			for(int j = 0; j < cols; j++) {
+				JSONObject aux = new JSONObject();
+				aux.put("row", i);
+				aux.put("col", j);
+				aux.put("data", this.regions[i][j].asJSON());
+				arr.put(aux);
+			}
+		}
+		return new JSONObject().put("regions", arr);
 	}
 
 }
