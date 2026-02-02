@@ -112,6 +112,7 @@ public abstract class Animal implements Entity, AnimalInfo {
 	@Override
 	public void update(double dt) {
 		State st = this.getState();
+		if(st == State.DEAD) return;
 		switch (st) {
 		case NORMAL:
 			NormalAction(dt);
@@ -125,8 +126,7 @@ public abstract class Animal implements Entity, AnimalInfo {
 		case DANGER:
 			DangerAction(dt);
 			break;
-		case DEAD:
-			DeadAction(dt);
+		default:
 			break;
 		}
 		

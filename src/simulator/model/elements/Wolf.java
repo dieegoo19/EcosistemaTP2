@@ -15,7 +15,7 @@ public class Wolf extends Animal{
 	private Animal huntTarget;
 	private SelectionStrategy huntingStrategy;
 	
-	public Wolf(SelectionStrategy mateStrategy, SelectionStrategy dangerStrategy,  Vector2D pos) {
+	public Wolf(SelectionStrategy mateStrategy, SelectionStrategy dangerStrategy,  Vector2D pos) throws IllegalArgumentException{
 		super(Constants.WOLF_GENETIC_CODE, Diet.CARNIVORE, 50.0, 60.0, mateStrategy, pos, 
 				Constants.FOOD_DROP_RATE_WOLF, Constants.DESIRE_INCREASE_RATE_WOLF, 
 				Constants.BOOST_FACTOR_WOLF, Constants.MAX_AGE_WOLF, 

@@ -15,7 +15,7 @@ public class Sheep extends Animal{
 	private Animal dangerSource;
 	private SelectionStrategy dangerStrategy;
 	
-	public Sheep(SelectionStrategy mateStrategy, SelectionStrategy dangerStrategy,  Vector2D pos) {
+	public Sheep(SelectionStrategy mateStrategy, SelectionStrategy dangerStrategy,  Vector2D pos) throws IllegalArgumentException{
 		super(Constants.SHEEP_GENETIC_CODE, Diet.HERBIVORE, 40.0, 35.0, mateStrategy, pos, 
 				Constants.FOOD_DROP_RATE_SHEEP, Constants.DESIRE_INCREASE_RATE_SHEEP, 
 				Constants.BOOST_FACTOR_SHEEP, Constants.MAX_AGE_SHEEP, 
