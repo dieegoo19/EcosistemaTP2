@@ -5,7 +5,9 @@ import simulator.model.elements.AnimalInfo;
 
 public class DefaultRegion extends Region{
 
-	public DefaultRegion() {}
+	public DefaultRegion() {
+		super();
+	}
 
 	@Override
 	public double getFood(AnimalInfo a, double dt) {

@@ -10,6 +10,7 @@ public class DynamicSupplyRegion extends Region{
 	double growFactor;
 	
 	public DynamicSupplyRegion(double initialFood, double iniGrowFactor) {
+		super();
 		this.food = initialFood; this.growFactor = iniGrowFactor;
 	}
 	
