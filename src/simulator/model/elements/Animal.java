@@ -213,7 +213,6 @@ public abstract class Animal implements Entity, AnimalInfo {
 			dest = mateTarget.getPosition();
 			updateStats(dt, foodDropBoostFactor);
 			MatePairing();
-			// More in the sub-classes
 		}
 		changeMateStateAction();
 	}

@@ -27,6 +27,7 @@ public class DynamicSupplyRegion extends Region{
 	@Override
 	public void update(double dt) {
 		if(Utils.RAND.nextDouble() < 0.5) {
+			// TODO: DUDA
 			food *= dt*growFactor;
 		}
 	}
