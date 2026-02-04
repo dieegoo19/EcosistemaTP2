@@ -14,10 +14,12 @@ public class DynamicSupplyRegion extends Region{
 		this.food = initialFood; this.growFactor = iniGrowFactor;
 	}
 	
+	
+	
 	@Override
 	public double getFood(AnimalInfo a, double dt) {
 		if(a.getDiet() == Diet.HERBIVORE) {
-			double ret = Math.min(food,60.0*Math.exp(-Math.max(0,animalsList.size()-5.0)*2.0)*dt);
+			double ret = Math.min(food,60.0*Math.exp(-Math.max(0,super.getHerbivoreAnimalsCount()-5.0)*2.0)*dt);
 			food -= ret;
 			return ret;
 		}
