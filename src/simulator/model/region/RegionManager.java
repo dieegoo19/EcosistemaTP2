@@ -1,5 +1,4 @@
 package simulator.model.region;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -17,15 +16,15 @@ import simulator.model.elements.AnimalInfo;
 
 public class RegionManager implements AnimalMapView{
 	
-	private int cols;
-	private int rows;
-	private int regionWidth;
-	private int regionHeight;
-	private int width;
-	private int height;
+	private final int cols;
+	private final int rows;
+	private final int regionWidth;
+	private final int regionHeight;
+	private final int width;
+	private final int height;
 	
 	private Region[][] regions;
-	Map<Animal, Region> animalRegion;
+	private Map<Animal, Region> animalRegion;
 	
 
 	public RegionManager(int cols, int rows, int width, int height) {
@@ -94,7 +93,6 @@ public class RegionManager implements AnimalMapView{
 	@Override
 	public List<Animal> getAnimalsInRange(Animal e, Predicate<Animal> filter) {
 	    Set<Region> regionesAnexas = new HashSet<>();
-	    
 	    double range = e.getSightRange();
 	    
 	    int maxCol = Math.min(regions.length - 1, (int) ((e.getPosition().getX() + range) / regionWidth));
@@ -102,10 +100,11 @@ public class RegionManager implements AnimalMapView{
 	    int maxRow = Math.min(regions[0].length - 1, (int) ((e.getPosition().getY() + range) / regionHeight));
 	    int minRow = Math.max(0, (int) ((e.getPosition().getY() - range) / regionHeight));
 	    
-	    regionesAnexas.add(regions[maxCol][maxRow]);
-	    regionesAnexas.add(regions[maxCol][minRow]);
-	    regionesAnexas.add(regions[minCol][maxRow]);
-	    regionesAnexas.add(regions[minCol][minRow]);
+	    for(int i = minRow; i <= maxRow; i++) {
+	    	for(int j = minCol; j <= maxCol; j++) {
+	    		regionesAnexas.add(regions[i][j]);
+	    	}
+	    }
 	    
 	    return regionesAnexas.stream()
 	    		// FLATMAP: "Para cada región, dame su Stream de animales y júntalos todos"
