@@ -82,7 +82,7 @@ public class RegionManager implements AnimalMapView{
 		return this.animalRegion.get(a).getFood(a, dt);
 	}
 	
-	void updateAllRegions(double dt) {
+	public void updateAllRegions(double dt) {
 		for(int i = 0; i < rows; i++) {
 			for(int j = 0; j < cols; j++) {
 				this.regions[i][j].update(dt);
@@ -127,7 +127,7 @@ public class RegionManager implements AnimalMapView{
 		this.animalRegion.remove(a);
 	}
 	
-	private void setRegion(int row, int col, Region r) {
+	public void setRegion(int row, int col, Region r) {
 		List<Animal> aux = this.regions[row][col].getAnimals();
 		this.regions[row][col] = r;
 		for(Animal an: aux) {
@@ -142,12 +142,12 @@ public class RegionManager implements AnimalMapView{
 		a.init(this);
 	}
 	
-	private void unregisterAnimal(Animal a) {
+	public void unregisterAnimal(Animal a) {
 		Region r = this.animalRegion.get(a);
 		removeAnimal(r, a);
 	}
 	
-	private void updateAnimalRegion(Animal a) {
+	public void updateAnimalRegion(Animal a) {
 		int row = (int)(a.getPosition().getY()/this.regionHeight);
 		int col = (int)(a.getPosition().getX()/this.regionWidth);
 		Region regAct = this.animalRegion.get(a);
