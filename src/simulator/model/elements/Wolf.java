@@ -19,10 +19,7 @@ public class Wolf extends Animal{
 	// CONSTRUCTORES
 	// ----------------------------------------------------------
 	public Wolf(SelectionStrategy mateStrategy, SelectionStrategy huntingStrategy,  Vector2D pos) throws IllegalArgumentException{
-		super(Constants.WOLF_GENETIC_CODE, Diet.CARNIVORE, 50.0, 60.0, mateStrategy, pos, 
-				Constants.FOOD_DROP_RATE_WOLF, Constants.DESIRE_INCREASE_RATE_WOLF, 
-				Constants.BOOST_FACTOR_WOLF, Constants.MAX_AGE_WOLF, 
-				Constants.FOOD_DROP_BOOST_FACTOR_WOLF);
+		super(Constants.WOLF_GENETIC_CODE, Diet.CARNIVORE, 50.0, 60.0, mateStrategy, pos);
 		this.huntTarget = null;
 		this.huntingStrategy = huntingStrategy;
 	}
@@ -37,6 +34,21 @@ public class Wolf extends Animal{
 	protected Animal newBaby(Animal p2) {
 		return new Wolf(this, p2);
 	}
+	
+	protected void NormalActionCall(double dt) {
+		super.NormalAction(dt, Constants.FOOD_DROP_RATE_WOLF, Constants.DESIRE_INCREASE_RATE_WOLF);
+	}
+	
+	
+	protected void MateActionCall(double dt) {
+		super.MateAction(dt, Constants.FOOD_DROP_BOOST_FACTOR_WOLF, Constants.FOOD_DROP_RATE_WOLF,
+				Constants.DESIRE_INCREASE_RATE_WOLF, Constants.BOOST_FACTOR_WOLF); 
+	}
+	
+	protected double getMaxAge() {
+		return Constants.MAX_AGE_WOLF;
+	}
+	
 	
 	// ----------------------------------------------------------
 	// IMPLEMENTACIÓN DE HOOKS DE ESTADO (SET)
@@ -108,11 +120,13 @@ public class Wolf extends Animal{
 			findHuntingTargets();
 		}
 		if(huntTarget == null) {
-			firstActionNormal(dt);
+			firstActionNormal(dt, Constants.FOOD_DROP_RATE_WOLF, Constants.DESIRE_INCREASE_RATE_WOLF);
 		}else {
 			setDestination(huntTarget.getPosition());
-			updateStats(dt, foodDropBoostFactor);
-			Hunt();
+			updateStats(dt, Constants.FOOD_DROP_BOOST_FACTOR_WOLF, Constants.BOOST_FACTOR_WOLF, 
+					Constants.FOOD_DROP_RATE_WOLF, Constants.DESIRE_INCREASE_RATE_WOLF);
+			if(getPosition().distanceTo(huntTarget.getPosition()) < Constants.COLLISION_RANGE) 
+				Hunt();
 		}
 		if(getEnergy() > 50.0) changeHungerStateAction();
 	}
@@ -132,10 +146,8 @@ public class Wolf extends Animal{
 	}
 	
 	private void Hunt() {
-		if(getPosition().distanceTo(huntTarget.getPosition()) < Constants.COLLISION_RANGE) {
-			huntTarget.dead();
-			huntTarget = null;
-			updateEnergy(getEnergy() + 50.0);
-		}
+		huntTarget.dead();
+		huntTarget = null;
+		updateEnergy(getEnergy() + 50.0);
 	}
 }

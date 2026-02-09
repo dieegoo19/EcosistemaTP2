@@ -19,10 +19,7 @@ public class Sheep extends Animal{
 	// CONSTRUCTORES
 	// ----------------------------------------------------------
 	public Sheep(SelectionStrategy mateStrategy, SelectionStrategy dangerStrategy,  Vector2D pos) throws IllegalArgumentException{
-		super(Constants.SHEEP_GENETIC_CODE, Diet.HERBIVORE, 40.0, 35.0, mateStrategy, pos, 
-				Constants.FOOD_DROP_RATE_SHEEP, Constants.DESIRE_INCREASE_RATE_SHEEP, 
-				Constants.BOOST_FACTOR_SHEEP, Constants.MAX_AGE_SHEEP, 
-				Constants.FOOD_DROP_BOOST_FACTOR_SHEEP);
+		super(Constants.SHEEP_GENETIC_CODE, Diet.HERBIVORE, 40.0, 35.0, mateStrategy, pos);
 		this.dangerSource = null;
 		this.dangerStrategy = dangerStrategy;
 	}
@@ -36,6 +33,20 @@ public class Sheep extends Animal{
 	@Override
 	protected Animal newBaby(Animal p2) {
 		return new Sheep(this, p2);
+	}
+	
+	protected void NormalActionCall(double dt) {
+		super.NormalAction(dt, Constants.FOOD_DROP_RATE_SHEEP, Constants.DESIRE_INCREASE_RATE_SHEEP);
+	}
+	
+	
+	protected void MateActionCall(double dt) {
+		super.MateAction(dt, Constants.FOOD_DROP_BOOST_FACTOR_SHEEP, Constants.FOOD_DROP_RATE_SHEEP,
+				Constants.DESIRE_INCREASE_RATE_SHEEP, Constants.BOOST_FACTOR_SHEEP); 
+	}
+	
+	protected double getMaxAge() {
+		return Constants.MAX_AGE_SHEEP;
 	}
 	
 	// ----------------------------------------------------------
@@ -117,11 +128,12 @@ public class Sheep extends Animal{
 			dangerSource = null;
 		}
 		if(dangerSource == null) {
-			firstActionNormal(dt);
+			firstActionNormal(dt, Constants.FOOD_DROP_RATE_SHEEP, Constants.DESIRE_INCREASE_RATE_SHEEP);
 		}
 		else {
 			setDestination(getPosition().plus(getPosition().minus(dangerSource.getPosition()).direction()));
-			updateStats(dt, foodDropBoostFactor);
+			updateStats(dt, Constants.FOOD_DROP_BOOST_FACTOR_SHEEP, Constants.BOOST_FACTOR_SHEEP,
+					Constants.FOOD_DROP_RATE_SHEEP, Constants.DESIRE_INCREASE_RATE_SHEEP);
 		}
 		changeDangerStateAction();
 	}

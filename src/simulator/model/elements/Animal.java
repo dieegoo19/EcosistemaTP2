@@ -32,19 +32,14 @@ public abstract class Animal implements Entity, AnimalInfo {
 	private Animal baby;
 	protected AnimalMapView regionMngr;
 	private SelectionStrategy mateStrategy;
-	protected final double foodDropRate;
-	protected final double desireIncreaseRate;
-	protected final double boostFactor;
-	protected final double maxAge;
-	protected final double foodDropBoostFactor;
 	
 	// ----------------------------------------------------------
 	// 2. CONSTRUCTORES
 	// ----------------------------------------------------------
-	protected Animal(String geneticCode, Diet diet, double sightRange, double initSpeed, SelectionStrategy mateStrategy, Vector2D pos, 
-			double foodDropRate, double desireIncreaseRate, double boostFactor, double maxAge, double foodDropBoostFactor) throws IllegalArgumentException{
+	protected Animal(String geneticCode, Diet diet, double sightRange, double initSpeed, SelectionStrategy mateStrategy, Vector2D pos) throws IllegalArgumentException{
 		if(geneticCode == null || geneticCode.isEmpty() || sightRange < 0 || initSpeed < 0 || mateStrategy == null)
 			throw new IllegalArgumentException("Argumentos no validos para crear un Animal");
+		this.age = 0.0;
 		this.geneticCode = geneticCode;
 		this.diet = diet;
 		this.sightRange = sightRange;
@@ -58,11 +53,6 @@ public abstract class Animal implements Entity, AnimalInfo {
 		this.mateTarget = null;
 		this.baby = null;
 		this.regionMngr = null;
-		this.foodDropRate = foodDropRate;
-		this.desireIncreaseRate = desireIncreaseRate; 
-		this.boostFactor = boostFactor;
-		this.maxAge = maxAge;
-		this.foodDropBoostFactor = foodDropBoostFactor;
 	}
 	
 	protected Animal(Animal p1, Animal p2) {
@@ -80,11 +70,6 @@ public abstract class Animal implements Entity, AnimalInfo {
 		this.mateTarget = null;
 		this.baby = null;
 		this.regionMngr = null;
-		this.foodDropRate = p1.foodDropRate;
-		this.desireIncreaseRate = p1.desireIncreaseRate;
-		this.boostFactor = p1.boostFactor;
-		this.maxAge = p1.maxAge;
-		this.foodDropBoostFactor = p1.foodDropBoostFactor;
 	}
 	
 	// ----------------------------------------------------------
@@ -106,16 +91,15 @@ public abstract class Animal implements Entity, AnimalInfo {
 		if(st == State.DEAD) return;
 		switch (st) {
 		case NORMAL:
-			NormalAction(dt);
+			NormalActionCall(dt);
 			break;
 		case MATE:
-			MateAction(dt); 
+			MateActionCall(dt); 
 			break;
 		case HUNGER:
-			HungerAction(dt);
+			HungerAction(dt); 
 			break;
 		case DANGER:
-			DangerAction(dt);
 			break;
 		default:
 			break;
@@ -131,7 +115,7 @@ public abstract class Animal implements Entity, AnimalInfo {
 			setState(State.NORMAL);
 		}
 		
-		if (energy <= 0.0 || age > maxAge) {
+		if (energy <= 0.0 || age > getMaxAge()) {
 			setState(State.DEAD);
 		}
 		
@@ -140,7 +124,11 @@ public abstract class Animal implements Entity, AnimalInfo {
 			updateEnergy(energy + food);
 		}
 	}
-
+	
+	protected abstract void NormalActionCall(double dt);
+	protected abstract void MateActionCall(double dt);
+	protected abstract double getMaxAge();
+	
 	// ----------------------------------------------------------
 	// 4. GESTIÓN DE ESTADOS (SET & CHANGE)
 	// ----------------------------------------------------------
@@ -184,12 +172,12 @@ public abstract class Animal implements Entity, AnimalInfo {
 	// ----------------------------------------------------------
 	
 	// --- Normal ---
-	protected void NormalAction(double dt) {
-		firstActionNormal(dt);
+	protected void NormalAction(double dt, double foodDropRate, double desireIncreaseRate) {
+		firstActionNormal(dt, foodDropRate, desireIncreaseRate);
 		changeNormalStateAction();
 	}
 	
-	protected void firstActionNormal(double dt) {
+	protected void firstActionNormal(double dt, double foodDropRate, double desireIncreaseRate) {
 		destinationCheck();
 		move(speed * dt * Math.exp((energy - Constants.INIT_ENERGY) * Constants.HUNGER_DECAY_EXP_FACTOR));
 		updateAge(dt);
@@ -198,7 +186,8 @@ public abstract class Animal implements Entity, AnimalInfo {
 	}
 	
 	// --- Mate ---
-	protected void MateAction(double dt) {
+	protected void MateAction(double dt, double foodDropBoostFactor, double foodDropRate, 
+			double desireIncreaseRate, double boostFactor) {
 		if (mateTarget != null && (mateTarget.getState() == State.DEAD || !inSightRange(mateTarget))) {
 			mateTarget = null;
 		}
@@ -206,12 +195,12 @@ public abstract class Animal implements Entity, AnimalInfo {
 			List<Animal> candidates = regionMngr.getAnimalsInRange(this, a -> a.getGeneticCode().equals(this.geneticCode));
 			mateTarget = mateStrategy.select(this, candidates);
 			if (mateTarget == null) {
-				firstActionNormal(dt);
+				firstActionNormal(dt, foodDropRate, desireIncreaseRate);
 			}
 		} 
 		if (mateTarget != null) {
 			dest = mateTarget.getPosition();
-			updateStats(dt, foodDropBoostFactor);
+			updateStats(dt, foodDropBoostFactor, boostFactor, foodDropRate, desireIncreaseRate);
 			MatePairing();
 		}
 		changeMateStateAction();
@@ -252,11 +241,12 @@ public abstract class Animal implements Entity, AnimalInfo {
 		return aux;
 	}
 	
-	protected void move(double speed) {
+	private void move(double speed) {
 		pos = pos.plus(dest.minus(pos).direction().scale(speed));
 	}
 	
-	protected void updateStats(double dt, double spFoodDropBoostFactor) {
+	protected void updateStats(double dt, double spFoodDropBoostFactor, double boostFactor, 
+			double foodDropRate, double desireIncreaseRate) {
 		double s = boostFactor * speed * dt * Math.exp((energy - Constants.INIT_ENERGY) * Constants.HUNGER_DECAY_EXP_FACTOR);
 		move(s);
 		updateAge(dt);
