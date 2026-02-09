@@ -18,13 +18,13 @@ public class Wolf extends Animal{
 	// ----------------------------------------------------------
 	// CONSTRUCTORES
 	// ----------------------------------------------------------
-	public Wolf(SelectionStrategy mateStrategy, SelectionStrategy dangerStrategy,  Vector2D pos) throws IllegalArgumentException{
+	public Wolf(SelectionStrategy mateStrategy, SelectionStrategy huntingStrategy,  Vector2D pos) throws IllegalArgumentException{
 		super(Constants.WOLF_GENETIC_CODE, Diet.CARNIVORE, 50.0, 60.0, mateStrategy, pos, 
 				Constants.FOOD_DROP_RATE_WOLF, Constants.DESIRE_INCREASE_RATE_WOLF, 
 				Constants.BOOST_FACTOR_WOLF, Constants.MAX_AGE_WOLF, 
 				Constants.FOOD_DROP_BOOST_FACTOR_WOLF);
 		this.huntTarget = null;
-		this.huntingStrategy = dangerStrategy;
+		this.huntingStrategy = huntingStrategy;
 	}
 	
 	protected Wolf(Wolf p1, Animal p2) {
@@ -96,6 +96,12 @@ public class Wolf extends Animal{
 	// ----------------------------------------------------------
 	// ACCIONES ESPECÍFICAS
 	// ----------------------------------------------------------
+	
+	@Override
+	protected void energyDrain() {
+		super.updateEnergy(this.getEnergy() - 10.0);
+	}
+	
 	@Override
 	protected void HungerAction(double dt) {
 		if(huntTarget == null || huntTarget.getState() == State.DEAD) {

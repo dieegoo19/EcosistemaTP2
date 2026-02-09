@@ -107,6 +107,10 @@ public class Sheep extends Animal{
 	// ----------------------------------------------------------
 	// ACCIONES ESPECÍFICAS
 	// ----------------------------------------------------------
+	
+	@Override
+	protected void energyDrain() {}
+	
 	@Override
 	protected void DangerAction(double dt) {
 		if(dangerSource != null && dangerSource.getState() == State.DEAD) {

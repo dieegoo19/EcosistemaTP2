@@ -217,15 +217,20 @@ public abstract class Animal implements Entity, AnimalInfo {
 		changeMateStateAction();
 	}
 
-	private void MatePairing() {
+	// TODO: SE PUEDE HACER BOOLEANO Y PONERLO CON SUPER EN WOLF
+	
+	protected void MatePairing() {
 		if(pos.distanceTo(mateTarget.pos) < Constants.COLLISION_RANGE) {
 			desire = 0.0; mateTarget.desire = 0.0;
 			if (baby == null && Utils.RAND.nextDouble() < 0.9) {
 				baby = newBaby(mateTarget);
 			}
+			energyDrain();
 			mateTarget = null;
 		}
 	}
+	
+	protected abstract void energyDrain();
 	
 	// --- Abstracts (Hunger, Danger, Dead) ---
 	protected abstract void HungerAction(double dt);
