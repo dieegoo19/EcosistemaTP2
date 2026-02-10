@@ -14,5 +14,11 @@ public class DynamicSupplyRegionBuilder extends Builder<DynamicSupplyRegion>{
 	protected DynamicSupplyRegion createInstance(JSONObject data) {
 		return new DynamicSupplyRegion(data.getDouble("food"), data.getDouble("factor"));
 	}
-
+	
+	 @Override
+    protected void fillInData(JSONObject o) {
+        o.put("factor", "Factor de crecimiento de la comida en la region.");
+        o.put("food", "Cantidad de comida en la region.");
+    }
+	
 }

@@ -35,8 +35,7 @@ public abstract class AnimalBuilder extends Builder<Animal> {
     }
 
     protected SelectionStrategy get_strategy(JSONObject data, String key) {
-        return data.has(key) 
-        	    ? selectionStrategyFactory.createInstance(data.getJSONObject(key)) : new SelectFirst();
+        return data.has(key) ? selectionStrategyFactory.createInstance(data.getJSONObject(key)) : new SelectFirst();
     }
     
     @Override
