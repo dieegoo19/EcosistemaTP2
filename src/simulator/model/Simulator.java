@@ -45,7 +45,7 @@ public class Simulator implements JSONable{
 		this.regMngr.setRegion(row, col, r);
 	}
 	
-	void setRegion(int row, int col, JSONObject rJson) {
+	public void setRegion(int row, int col, JSONObject rJson) {
 		setRegion(row, col, this.regFact.createInstance(rJson));
 	}
 	
