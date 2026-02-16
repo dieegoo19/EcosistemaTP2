@@ -6,8 +6,8 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/dpl19/Desktop/TP2/EcosistemaTP2/lib/lib/commons-cli-1.4.jar"/>
-	<classpathentry kind="lib" path="C:/Users/dpl19/Desktop/TP2/EcosistemaTP2/lib/lib/json.jar"/>
-	<classpathentry kind="lib" path="C:/Users/dpl19/Desktop/TP2/EcosistemaTP2/lib/lib/viewer.jar"/>
+	<classpathentry kind="lib" path="C:/Users/DjMor/Desktop/TP2/EcosistemaTP2/lib/lib/commons-cli-1.4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/DjMor/Desktop/TP2/EcosistemaTP2/lib/lib/json.jar"/>
+	<classpathentry kind="lib" path="C:/Users/DjMor/Desktop/TP2/EcosistemaTP2/lib/lib/viewer.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
