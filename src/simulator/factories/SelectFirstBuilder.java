@@ -3,8 +3,9 @@ package simulator.factories;
 import org.json.JSONObject;
 
 import simulator.model.selection.SelectFirst;
+import simulator.model.selection.SelectionStrategy;
 
-public class SelectFirstBuilder extends Builder<SelectFirst>{
+public class SelectFirstBuilder extends Builder<SelectionStrategy>{
 
 	public SelectFirstBuilder() throws IllegalArgumentException{
 		super("first","Selecciona el primer animal de la lista.");

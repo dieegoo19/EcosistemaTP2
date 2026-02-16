@@ -3,8 +3,9 @@ package simulator.factories;
 import org.json.JSONObject;
 
 import simulator.model.region.DynamicSupplyRegion;
+import simulator.model.region.Region;
 
-public class DynamicSupplyRegionBuilder extends Builder<DynamicSupplyRegion>{
+public class DynamicSupplyRegionBuilder extends Builder<Region>{
 
 	public DynamicSupplyRegionBuilder() throws IllegalArgumentException {
 		super("dynamic", "Crea una region que da comida de forma dinamica.");

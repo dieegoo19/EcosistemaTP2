@@ -3,8 +3,9 @@ package simulator.factories;
 import org.json.JSONObject;
 
 import simulator.model.region.DefaultRegion;
+import simulator.model.region.Region;
 
-public class DefaultRegionBuilder extends Builder<DefaultRegion>{
+public class DefaultRegionBuilder extends Builder<Region>{
 
 	public DefaultRegionBuilder() throws IllegalArgumentException {
 		super("default", "Crea la region por defecto.");

@@ -30,8 +30,6 @@ public class BuilderBasedFactory<T> implements Factory<T> {
 		this.buildersInfo.add(b.getInfo());
 	}
 	
-	
-	// TODO: ESTO ESTA RARETE
 	@Override  
 	public T createInstance(JSONObject info) throws IllegalArgumentException{  
 		if (info == null) {  
