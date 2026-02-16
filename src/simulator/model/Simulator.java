@@ -1,10 +1,8 @@
 package simulator.model;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -18,10 +16,6 @@ import simulator.model.region.RegionManager;
 
 public class Simulator implements JSONable{
 	
-	private int cols;
-	private int rows;
-	private int width;
-	private int height;
 	private Factory<Animal> anFact;
 	private Factory<Region> regFact;
 	private RegionManager regMngr;
@@ -30,10 +24,6 @@ public class Simulator implements JSONable{
 	
 	public Simulator(int cols, int rows, int width, int height,   
             Factory<Animal> animalsFactory, Factory<Region> regionsFactory) {
-		this.cols = cols;
-		this.rows = rows;
-		this.width = width;
-		this.height = height;
 		this.anFact = animalsFactory;
 		this.regFact = regionsFactory;
 		this.regMngr = new RegionManager(cols,rows,width,height);
@@ -51,6 +41,7 @@ public class Simulator implements JSONable{
 	
 	private void addAnimal(Animal a) {
 		this.animalsList.add(a);
+		this.regMngr.registerAnimal(a);
 	}
 	
 	public void addAnimal(JSONObject aJson) {
@@ -82,7 +73,9 @@ public class Simulator implements JSONable{
 		animalsList.removeIf(a -> deadAnimalAction(a));
 		for(Animal a: animalsList) {a.update(dt); regMngr.updateAnimalRegion(a);}
 		this.regMngr.updateAllRegions(dt);
-		for(Animal a: animalsList) {if(a.isPregnant()) addAnimal(a.deliverBaby());}
+		List<Animal> babies = new ArrayList<>();
+		for(Animal a: animalsList) {if(a.isPregnant()) babies.add(a.deliverBaby());}
+		for(Animal a: babies) {addAnimal(a);}
 	}
 	
 	public JSONObject asJSON() {

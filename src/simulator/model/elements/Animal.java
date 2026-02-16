@@ -100,6 +100,7 @@ public abstract class Animal implements Entity, AnimalInfo {
 			HungerAction(dt); 
 			break;
 		case DANGER:
+			DangerAction(dt); 
 			break;
 		default:
 			break;
@@ -283,7 +284,7 @@ public abstract class Animal implements Entity, AnimalInfo {
 		}
 	}
 	
-	protected boolean inSightRange(Animal a) {
+	public boolean inSightRange(Animal a) {
 		if (a == null) return false;
 		return this.getPosition().distanceTo(a.getPosition()) <= this.sightRange;
 	}

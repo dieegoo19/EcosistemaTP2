@@ -31,6 +31,8 @@ public class DynamicSupplyRegion extends Region{
 		if(Utils.RAND.nextDouble() < 0.5) {
 			// TODO: DUDA
 			food *= dt*growFactor;
+			// food = food*dt*growFactor
+			// food = food + 
 		}
 	}
 	

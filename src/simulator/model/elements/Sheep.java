@@ -3,12 +3,10 @@ import simulator.model.selection.*;
 
 import java.util.List;
 
-import simulator.misc.Utils;
 import simulator.misc.Vector2D;
 import simulator.model.Constants;
 import simulator.model.Diet;
 import simulator.model.State;
-import simulator.model.selection.*;
 
 public class Sheep extends Animal{
 		

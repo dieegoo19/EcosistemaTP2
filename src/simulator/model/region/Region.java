@@ -35,7 +35,6 @@ public abstract class Region implements Entity, FoodSupplier, RegionInfo{
 		return (int) getAnimals().stream()
 				.filter(a -> a.getDiet() == Diet.HERBIVORE)
 				.count();
-		//TODO: .collect(Collectors.toList()).size();
 	}
 	
 	public JSONObject asJSON() {

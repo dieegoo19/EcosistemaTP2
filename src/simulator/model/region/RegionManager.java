@@ -95,9 +95,12 @@ public class RegionManager implements AnimalMapView{
 	    Set<Region> regionesAnexas = new HashSet<>();
 	    double range = e.getSightRange();
 	    
-	    int maxCol = Math.min(regions.length - 1, (int) ((e.getPosition().getX() + range) / regionWidth));
+	    int numRows = regions.length;
+	    int numCols = regions[0].length;
+	    
+	    int maxCol = Math.min(numCols - 1, (int) ((e.getPosition().getX() + range) / regionWidth));
 	    int minCol = Math.max(0, (int) ((e.getPosition().getX() - range) / regionWidth));
-	    int maxRow = Math.min(regions[0].length - 1, (int) ((e.getPosition().getY() + range) / regionHeight));
+	    int maxRow = Math.min(numRows - 1, (int) ((e.getPosition().getY() + range) / regionHeight));
 	    int minRow = Math.max(0, (int) ((e.getPosition().getY() - range) / regionHeight));
 	    
 	    for(int i = minRow; i <= maxRow; i++) {
@@ -107,13 +110,8 @@ public class RegionManager implements AnimalMapView{
 	    }
 	    
 	    return regionesAnexas.stream()
-	    		// FLATMAP: "Para cada región, dame su Stream de animales y júntalos todos"
 	            .flatMap(region -> region.getAnimals().stream()) 
-	            // FILTER: "Para cada animal que pase por aquí, aplica esta condición"
-	            .filter(filter)
-	            // distinct() asegura que no haya duplicados en el resultado
-	            .distinct() 
-	            // COLLECT: "Toma todo lo que sobrevivió y mételo en una lista"
+	            .filter(a -> (e.inSightRange(a) && filter.test(a)) )
 	            .collect(Collectors.toList());
 	}
 	
@@ -135,11 +133,14 @@ public class RegionManager implements AnimalMapView{
 		}
 	}
 	
-	private void registerAnimal(Animal a) {
-		int row = (int)(a.getPosition().getY()/this.regionHeight);
-		int col = (int)(a.getPosition().getX()/this.regionWidth);
-		addAnimal(this.regions[row][col], a);
+	public void registerAnimal(Animal a) {
 		a.init(this);
+		int row = (int)(a.getPosition().getY()/this.regionHeight);
+        int col = (int)(a.getPosition().getX()/this.regionWidth);
+        row = Math.max(0, Math.min(row, rows - 1));
+        col = Math.max(0, Math.min(col, cols - 1));
+        Region r = this.regions[row][col];
+		addAnimal(r, a);
 	}
 	
 	public void unregisterAnimal(Animal a) {
@@ -154,7 +155,7 @@ public class RegionManager implements AnimalMapView{
 		Region realReg = this.regions[row][col];
 		if(!realReg.equals(regAct)){
 			addAnimal(realReg, a);
-			removeAnimal(regAct, a);
+			regAct.removeAnimal(a);
 		}
 	}
 	
