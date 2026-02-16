@@ -1,20 +1,28 @@
 package simulator.control;
 
-import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import simulator.model.MapInfo;
 import simulator.model.Simulator;
+import simulator.model.elements.AnimalInfo;
+import simulator.view.SimpleObjectViewer;
+import simulator.view.SimpleObjectViewer.ObjInfo;
 
 public class Controller {
 	
 	Simulator sim;
 	
 	public Controller(Simulator sim) {
-		this.sim = sim;
+		if (sim == null) {
+            throw new IllegalArgumentException("Simulator cannot be null");
+        }
+        this.sim = sim;
 	}
 	
 	
@@ -54,24 +62,37 @@ public class Controller {
 		animals.forEach(item -> treatAnimalsJSON((JSONObject)item));
 	}
 	
-	//TODO: DUDA CON EL OUT
+	private List<ObjInfo> toAnimalsInfo(List<? extends AnimalInfo> animals) {
+		List<ObjInfo> ol = new ArrayList<>(animals.size());
+		for (AnimalInfo a : animals)
+			ol.add(new ObjInfo(
+					a.getGeneticCode(), 
+					(int) a.getPosition().getX(), 
+					(int) a.getPosition().getY(),
+					(int) Math.round(a.getAge()) + 2
+			));
+		return ol;
+	}
+	
 	public void run(double t, double dt, boolean sv, OutputStream out) {
+		SimpleObjectViewer view = null;  
+		if (sv) {  
+		   MapInfo m = sim.getMapInfo();  
+		   view = new SimpleObjectViewer("[ECOSYSTEM]", m.getWidth(), m.getHeight(), m.getCols(), m.getRows());  
+		   view.update(toAnimalsInfo(sim.getAnimals()), sim.getTime(), dt);  
+		}
+		
 		JSONObject obj = new JSONObject();
 		obj.put("in", sim.asJSON());
-		while(sim.getTime() <= t) {
-			sim.advance(dt);
+		while(sim.getTime() <= t) { 
+			sim.advance(dt); 
+			if (sv) view.update(toAnimalsInfo(sim.getAnimals()), sim.getTime(), dt);
 		}
 		obj.put("out", sim.asJSON());
 
-		String jsonString = obj.toString();
-		byte[] binario = jsonString.getBytes(StandardCharsets.UTF_8);
+		PrintStream p = new PrintStream(out);
+		p.println(obj.toString(2));
 		
-		try {
-			out.write(binario);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		//TODO: FALTA LO DEL VISOR
+		if (sv) view.close();
 	}
 }
