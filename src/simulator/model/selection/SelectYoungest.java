@@ -10,6 +10,7 @@ public class SelectYoungest implements SelectionStrategy{
 
 	@Override
 	public Animal select(Animal a, List<Animal> as) {
+		if(as.isEmpty()) return null;
 		Animal ret = as.getFirst();
 		double minAge = as.getFirst().getAge();
 		for(Animal an: as) {
