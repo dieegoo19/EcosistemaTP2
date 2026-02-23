@@ -133,6 +133,7 @@ public class Sheep extends Animal{
 			updateStats(dt, Constants.FOOD_DROP_BOOST_FACTOR_SHEEP, Constants.BOOST_FACTOR_SHEEP,
 					Constants.FOOD_DROP_RATE_SHEEP, Constants.DESIRE_INCREASE_RATE_SHEEP);
 		}
+		
 		changeDangerStateAction();
 	}
 	

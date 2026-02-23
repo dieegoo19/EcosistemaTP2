@@ -116,7 +116,7 @@ public class Wolf extends Animal{
 	
 	@Override
 	protected void HungerAction(double dt) {
-		if(huntTarget == null || huntTarget.getState() == State.DEAD) {
+		if(huntTarget == null || (huntTarget != null && huntTarget.getState() == State.DEAD) || !this.inSightRange(huntTarget)) {
 			findHuntingTargets();
 		}
 		if(huntTarget == null) {

@@ -189,27 +189,31 @@ public abstract class Animal implements Entity, AnimalInfo {
 	// --- Mate ---
 	protected void MateAction(double dt, double foodDropBoostFactor, double foodDropRate, 
 			double desireIncreaseRate, double boostFactor) {
-		if (mateTarget != null && (mateTarget.getState() == State.DEAD || !inSightRange(mateTarget))) {
+		if ((mateTarget != null && mateTarget.getState() == State.DEAD) || !inSightRange(mateTarget)) {
 			mateTarget = null;
 		}
 		if (mateTarget == null) {
-			List<Animal> candidates = regionMngr.getAnimalsInRange(this, a -> a.getGeneticCode().equals(this.geneticCode));
-			mateTarget = mateStrategy.select(this, candidates);
+			findMateTargets();
 			if (mateTarget == null) {
 				firstActionNormal(dt, foodDropRate, desireIncreaseRate);
 			}
 		} 
-		if (mateTarget != null) {
+		else {
 			dest = mateTarget.getPosition();
 			updateStats(dt, foodDropBoostFactor, boostFactor, foodDropRate, desireIncreaseRate);
 			MatePairing();
 		}
 		changeMateStateAction();
 	}
-
+	
+	private void findMateTargets() {
+		List<Animal> candidates = regionMngr.getAnimalsInRange(this, a -> a.getGeneticCode().equals(this.geneticCode));
+		mateTarget = mateStrategy.select(this, candidates);
+	}
+	
 	// TODO: SE PUEDE HACER BOOLEANO Y PONERLO CON SUPER EN WOLF
 	
-	protected void MatePairing() {
+	private void MatePairing() {
 		if(pos.distanceTo(mateTarget.pos) < Constants.COLLISION_RANGE) {
 			desire = 0.0; mateTarget.desire = 0.0;
 			if (baby == null && Utils.RAND.nextDouble() < 0.9) {
