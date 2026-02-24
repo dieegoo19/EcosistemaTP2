@@ -19,7 +19,7 @@ public class Simulator implements JSONable{
 	private Factory<Animal> anFact;
 	private Factory<Region> regFact;
 	private RegionManager regMngr;
-	private Set<Animal> animalsList;
+	private List<Animal> animalsList;
 	private double time;
 	
 	public Simulator(int cols, int rows, int width, int height,   
@@ -28,7 +28,7 @@ public class Simulator implements JSONable{
 		this.regFact = regionsFactory;
 		this.regMngr = new RegionManager(cols,rows,width,height);
 		this.time = 0.0;
-		this.animalsList = new HashSet<>();
+		this.animalsList = new ArrayList<>();
 	}
 	
 	private void setRegion(int row, int col, Region r) {
@@ -53,7 +53,7 @@ public class Simulator implements JSONable{
 	}
 	
 	public List<? extends AnimalInfo> getAnimals(){
-		return Collections.unmodifiableList(this.animalsList.stream().toList());
+	    return Collections.unmodifiableList(this.animalsList);
 	}
 	
 	public double getTime() {

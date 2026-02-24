@@ -40,7 +40,7 @@ public class Sheep extends Animal{
 	
 	protected void MateActionCall(double dt) {
 		super.MateAction(dt, Constants.FOOD_DROP_BOOST_FACTOR_SHEEP, Constants.FOOD_DROP_RATE_SHEEP,
-				Constants.DESIRE_INCREASE_RATE_SHEEP, Constants.BOOST_FACTOR_SHEEP); 
+				Constants.DESIRE_INCREASE_RATE_SHEEP, Constants.BOOST_FACTOR_SHEEP, Constants.PREGNANT_PROBABILITY_SHEEP); 
 	}
 	
 	protected double getMaxAge() {
@@ -147,7 +147,7 @@ public class Sheep extends Animal{
 	// MÉTODOS AUXILIARES
 	// ----------------------------------------------------------
 	private void findDangerousTargets() {
-		List<Animal> predators = regionMngr.getAnimalsInRange(this, a -> a.getDiet() == Diet.CARNIVORE);
+		List<Animal> predators = regionMngr.getAnimalsInRange(this, a -> a.getDiet() == Diet.CARNIVORE && a.getState() != State.DEAD);
 		dangerSource = dangerStrategy.select(this, predators);
 	}
 }

@@ -111,7 +111,7 @@ public class RegionManager implements AnimalMapView{
 	    
 	    return regionesAnexas.stream()
 	            .flatMap(region -> region.getAnimals().stream()) 
-	            .filter(a -> (e.inSightRange(a) && filter.test(a)) )
+	            .filter(a -> a != e && e.inSightRange(a) && filter.test(a))
 	            .collect(Collectors.toList());
 	}
 	

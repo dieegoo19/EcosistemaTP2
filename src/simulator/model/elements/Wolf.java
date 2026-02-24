@@ -42,7 +42,7 @@ public class Wolf extends Animal{
 	
 	protected void MateActionCall(double dt) {
 		super.MateAction(dt, Constants.FOOD_DROP_BOOST_FACTOR_WOLF, Constants.FOOD_DROP_RATE_WOLF,
-				Constants.DESIRE_INCREASE_RATE_WOLF, Constants.BOOST_FACTOR_WOLF); 
+				Constants.DESIRE_INCREASE_RATE_WOLF, Constants.BOOST_FACTOR_WOLF, Constants.PREGNANT_PROBABILITY_WOLF); 
 	}
 	
 	protected double getMaxAge() {
@@ -141,13 +141,15 @@ public class Wolf extends Animal{
 	// MÉTODOS AUXILIARES
 	// ----------------------------------------------------------
 	private void findHuntingTargets() {
-		List<Animal> preys = regionMngr.getAnimalsInRange(this, a -> a.getDiet() == Diet.HERBIVORE);
+		List<Animal> preys = regionMngr.getAnimalsInRange(this, a -> a.getDiet() == Diet.HERBIVORE && a.getState() != State.DEAD);
 		huntTarget = huntingStrategy.select(this, preys);
 	}
 	
 	private void Hunt() {
-		huntTarget.dead();
-		huntTarget = null;
-		updateEnergy(getEnergy() + 50.0);
+	    if (huntTarget.getState() != State.DEAD) { 
+	        huntTarget.dead();
+	        updateEnergy(getEnergy() + Constants.FOOD_EAT_VALUE_WOLF);
+	    }
+	    huntTarget = null;
 	}
 }

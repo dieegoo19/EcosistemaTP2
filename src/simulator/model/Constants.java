@@ -15,7 +15,7 @@ public final class Constants {
 	public final static double INIT_SIGHT_SHEEP = 40;
 	public final static double INIT_SPEED_SHEEP = 35;
 	public final static double BOOST_FACTOR_SHEEP = 2.0;
-	public final static double MAX_AGE_SHEEP = 8;
+	public final static double MAX_AGE_SHEEP = 8.0;
 	public final static double FOOD_DROP_BOOST_FACTOR_SHEEP = 1.2;
 	public final static double FOOD_DROP_RATE_SHEEP = 20.0;
 	public final static double DESIRE_THRESHOLD_SHEEP = 65.0;

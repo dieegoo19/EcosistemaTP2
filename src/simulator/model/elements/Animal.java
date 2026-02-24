@@ -188,7 +188,7 @@ public abstract class Animal implements Entity, AnimalInfo {
 	
 	// --- Mate ---
 	protected void MateAction(double dt, double foodDropBoostFactor, double foodDropRate, 
-			double desireIncreaseRate, double boostFactor) {
+			double desireIncreaseRate, double boostFactor, double pregnantProb) {
 		if ((mateTarget != null && mateTarget.getState() == State.DEAD) || !inSightRange(mateTarget)) {
 			mateTarget = null;
 		}
@@ -201,27 +201,41 @@ public abstract class Animal implements Entity, AnimalInfo {
 		else {
 			dest = mateTarget.getPosition();
 			updateStats(dt, foodDropBoostFactor, boostFactor, foodDropRate, desireIncreaseRate);
-			MatePairing();
+			MatePairing(pregnantProb);
 		}
 		changeMateStateAction();
 	}
 	
 	private void findMateTargets() {
-		List<Animal> candidates = regionMngr.getAnimalsInRange(this, a -> a.getGeneticCode().equals(this.geneticCode));
+		List<Animal> candidates = regionMngr.getAnimalsInRange(this, a -> a.getGeneticCode().equals(this.geneticCode) && a.getState() != State.DEAD);
 		mateTarget = mateStrategy.select(this, candidates);
 	}
 	
 	// TODO: SE PUEDE HACER BOOLEANO Y PONERLO CON SUPER EN WOLF
-	
-	private void MatePairing() {
+	/*
+	private void MatePairing(double pregnantProb) {
 		if(pos.distanceTo(mateTarget.pos) < Constants.COLLISION_RANGE) {
 			desire = 0.0; mateTarget.desire = 0.0;
-			if (baby == null && Utils.RAND.nextDouble() < 0.9) {
+			if (baby == null && Utils.RAND.nextDouble() < pregnantProb) {
 				baby = newBaby(mateTarget);
 			}
 			energyDrain();
 			mateTarget = null;
 		}
+	}
+	*/
+	private void MatePairing(double pregnantProb) {
+	    if(pos.distanceTo(mateTarget.pos) < Constants.COLLISION_RANGE) {
+	        desire = 0.0; 
+	        mateTarget.desire = 0.0;
+	        // TODO: DUDA
+	        if (baby == null && Utils.RAND.nextDouble() < pregnantProb) {
+	            baby = newBaby(mateTarget);
+	        }
+	        energyDrain();
+	        mateTarget.mateTarget = null;
+	        mateTarget = null;
+	    }
 	}
 	
 	protected abstract void energyDrain();
@@ -232,7 +246,7 @@ public abstract class Animal implements Entity, AnimalInfo {
 	protected abstract void DeadAction(double dt);
 	
 	protected void dead() {
-		state = State.DEAD;
+		setState(State.DEAD);
 	}
 
 	// ----------------------------------------------------------
