@@ -6,6 +6,4 @@ public enum State {
 	HUNGER,
 	DANGER,
 	DEAD;
-	
-	
 }
