@@ -31,9 +31,9 @@ public abstract class Region implements Entity, FoodSupplier, RegionInfo{
         return Collections.unmodifiableList(animalsList);
 	}
 	
-	protected int getHerbivoreAnimalsCount() {
+	protected int getAnimalsCountByDiet(Diet diet) {
 		return (int) getAnimals().stream()
-				.filter(a -> a.getDiet() == Diet.HERBIVORE && a.getState() != State.DEAD)
+				.filter(a -> a.getDiet() == diet && a.getState() != State.DEAD)
 				.count();
 	}
 	

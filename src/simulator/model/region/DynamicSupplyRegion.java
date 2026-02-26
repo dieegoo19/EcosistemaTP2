@@ -19,7 +19,7 @@ public class DynamicSupplyRegion extends Region{
 	@Override
 	public double getFood(AnimalInfo a, double dt) {
 		if(a.getDiet() == Diet.HERBIVORE) {
-			double ret = Math.min(food,60.0*Math.exp(-Math.max(0,super.getHerbivoreAnimalsCount()-5.0)*2.0)*dt);
+			double ret = Math.min(food,60.0*Math.exp(-Math.max(0,super.getAnimalsCountByDiet(Diet.HERBIVORE)-5.0)*2.0)*dt);
 			food -= ret;
 			return ret;
 		}
@@ -29,10 +29,7 @@ public class DynamicSupplyRegion extends Region{
 	@Override
 	public void update(double dt) {
 		if(Utils.RAND.nextDouble() < 0.5) {
-			// TODO: DUDA
 			food *= dt*growFactor;
-			// food = food*dt*growFactor
-			// food = food + 
 		}
 	}
 	
