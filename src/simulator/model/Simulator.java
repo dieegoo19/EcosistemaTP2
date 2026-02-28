@@ -2,17 +2,11 @@ package simulator.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.json.JSONObject;
 
 import simulator.factories.Factory;
-import simulator.model.elements.Animal;
-import simulator.model.elements.AnimalInfo;
-import simulator.model.region.Region;
-import simulator.model.region.RegionManager;
 
 public class Simulator implements JSONable{
 	

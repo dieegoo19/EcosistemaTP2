@@ -2,8 +2,7 @@ package simulator.factories;
 
 import org.json.JSONObject;
 
-import simulator.model.region.DefaultRegion;
-import simulator.model.region.Region;
+import simulator.model.*;
 
 public class DefaultRegionBuilder extends Builder<Region>{
 

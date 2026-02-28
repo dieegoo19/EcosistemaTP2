@@ -2,8 +2,7 @@ package simulator.factories;
 
 import org.json.JSONObject;
 
-import simulator.model.region.DynamicSupplyRegion;
-import simulator.model.region.Region;
+import simulator.model.*;
 
 public class DynamicSupplyRegionBuilder extends Builder<Region>{
 
@@ -17,9 +16,6 @@ public class DynamicSupplyRegionBuilder extends Builder<Region>{
 	}
 	
 	 @Override
-    protected void fillInData(JSONObject o) {
-        o.put("factor", "Factor de crecimiento de la comida en la region.");
-        o.put("food", "Cantidad de comida en la region.");
-    }
+    protected void fillInData(JSONObject o) {}
 	
 }

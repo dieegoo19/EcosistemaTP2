@@ -4,9 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import simulator.misc.Utils;
 import simulator.misc.Vector2D;
-import simulator.model.elements.Animal;
-import simulator.model.selection.SelectFirst;
-import simulator.model.selection.SelectionStrategy;
+import simulator.model.*;
 
 public abstract class AnimalBuilder extends Builder<Animal> {
     protected Factory<SelectionStrategy> selectionStrategyFactory;
@@ -39,10 +37,5 @@ public abstract class AnimalBuilder extends Builder<Animal> {
     }
     
     @Override
-    protected void fillInData(JSONObject o) {
-        JSONObject pos = new JSONObject();
-        pos.put("x_range", "[min, max]");
-        pos.put("y_range", "[min, max]");
-        o.put("pos", pos);
-    }
+    protected void fillInData(JSONObject o) {}
 }

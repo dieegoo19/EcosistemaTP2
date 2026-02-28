@@ -1,4 +1,4 @@
-package simulator.model.region;
+package simulator.model;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -9,10 +9,6 @@ import java.util.stream.Collectors;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-import simulator.model.*;
-import simulator.model.elements.Animal;
-import simulator.model.elements.AnimalInfo;
 
 public class RegionManager implements AnimalMapView{
 	
@@ -95,12 +91,9 @@ public class RegionManager implements AnimalMapView{
 	    Set<Region> regionesAnexas = new HashSet<>();
 	    double range = e.getSightRange();
 	    
-	    int numRows = regions.length;
-	    int numCols = regions[0].length;
-	    
-	    int maxCol = Math.min(numCols - 1, (int) ((e.getPosition().getX() + range) / regionWidth));
+	    int maxCol = Math.min(cols - 1, (int) ((e.getPosition().getX() + range) / regionWidth));
 	    int minCol = Math.max(0, (int) ((e.getPosition().getX() - range) / regionWidth));
-	    int maxRow = Math.min(numRows - 1, (int) ((e.getPosition().getY() + range) / regionHeight));
+	    int maxRow = Math.min(rows - 1, (int) ((e.getPosition().getY() + range) / regionHeight));
 	    int minRow = Math.max(0, (int) ((e.getPosition().getY() - range) / regionHeight));
 	    
 	    for(int i = minRow; i <= maxRow; i++) {
@@ -108,7 +101,7 @@ public class RegionManager implements AnimalMapView{
 	    		regionesAnexas.add(regions[i][j]);
 	    	}
 	    }
-	    
+	    // TODO: entender flatmap
 	    return regionesAnexas.stream()
 	            .flatMap(region -> region.getAnimals().stream()) 
 	            .filter(a -> a != e && e.inSightRange(a) && filter.test(a))
@@ -154,8 +147,8 @@ public class RegionManager implements AnimalMapView{
 		Region regAct = this.animalRegion.get(a);
 		Region realReg = this.regions[row][col];
 		if(!realReg.equals(regAct)){
+			removeAnimal(regAct, a);
 			addAnimal(realReg, a);
-			regAct.removeAnimal(a);
 		}
 	}
 	

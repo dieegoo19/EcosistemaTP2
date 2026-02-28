@@ -1,7 +1,5 @@
-package simulator.model.region;
-import simulator.model.*;
+package simulator.model;
 
-import simulator.model.elements.AnimalInfo;
 
 public class DefaultRegion extends Region{
 

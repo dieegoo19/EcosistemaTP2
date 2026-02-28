@@ -1,12 +1,8 @@
-package simulator.model.elements;
-import simulator.model.selection.*;
+package simulator.model;
 
 import java.util.List;
 
 import simulator.misc.Vector2D;
-import simulator.model.Constants;
-import simulator.model.Diet;
-import simulator.model.State;
 
 public class Sheep extends Animal{
 		
@@ -70,7 +66,10 @@ public class Sheep extends Animal{
 	protected void setHungerStateAction() {}
 	
 	@Override
-	protected void setDeadStateAction() {}
+	protected void setDeadStateAction() {
+		
+		super.setMateNull();
+	}
 
 	// ----------------------------------------------------------
 	// LÓGICA DE TRANSICIÓN DE ESTADOS (CHANGE)

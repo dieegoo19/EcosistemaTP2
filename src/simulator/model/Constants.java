@@ -38,7 +38,7 @@ public final class Constants {
 	public final static double PREGNANT_PROBABILITY_WOLF = 0.75;
 
 	// se usan en DefaultRegion
-	public final static double FOOD_EAT_RATE_HERBS1 = 60.0;
+	public final static double FOOD_EAT_RATE_HERBS = 60.0;
 	public final static double FOOD_SHORTAGE_TH_HERBS = 5.0;
 	public final static double FOOD_SHORTAGE_EXP_HERBS = 2.0;
 

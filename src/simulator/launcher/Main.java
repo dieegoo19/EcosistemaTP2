@@ -20,9 +20,6 @@ import simulator.control.Controller;
 import simulator.factories.*;
 import simulator.misc.Utils;
 import simulator.model.*;
-import simulator.model.elements.Animal;
-import simulator.model.region.Region;
-import simulator.model.selection.SelectionStrategy;
 
 
 public class Main {
@@ -50,7 +47,7 @@ public class Main {
 	// default values for some parameters
 	//
 	private final static Double DEFAULT_TIME = 10.0; // in seconds
-	private final static Double DEFAULT_DELTA_TIME = 1.00; // in seconds
+	private final static Double DEFAULT_DELTA_TIME = 0.03; // in seconds
 
 	// some attributes to stores values corresponding to command-line parameters
 	//

@@ -3,8 +3,7 @@ package simulator.factories;
 import org.json.JSONObject;
 
 import simulator.misc.Vector2D;
-import simulator.model.elements.Sheep;
-import simulator.model.selection.SelectionStrategy;
+import simulator.model.*;
 
 public class SheepBuilder extends AnimalBuilder{
 	
@@ -22,9 +21,5 @@ public class SheepBuilder extends AnimalBuilder{
 	}
 	
 	@Override
-	protected void fillInData(JSONObject o) {
-	    o.put("mate_strategy", "Estrategia para buscar pareja (opcional, default 'first')");
-	    o.put("danger_strategy", "Estrategia para huir del peligro (opcional, default 'first')");
-	    super.fillInData(o);
-	}
+	protected void fillInData(JSONObject o) {}
 }

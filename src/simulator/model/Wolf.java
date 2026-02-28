@@ -1,14 +1,8 @@
-package simulator.model.elements;
-import simulator.model.selection.*;
+package simulator.model;
 
 import java.util.List;
 
-import simulator.misc.Utils;
 import simulator.misc.Vector2D;
-import simulator.model.Constants;
-import simulator.model.Diet;
-import simulator.model.State;
-import simulator.model.selection.*;
 
 public class Wolf extends Animal{
 	

@@ -1,8 +1,6 @@
-package simulator.model.region;
-import simulator.model.*;
+package simulator.model;
 
 import simulator.misc.Utils;
-import simulator.model.elements.AnimalInfo;
 
 public class DynamicSupplyRegion extends Region{
 	
@@ -28,8 +26,8 @@ public class DynamicSupplyRegion extends Region{
 
 	@Override
 	public void update(double dt) {
-		if(Utils.RAND.nextDouble() < 0.5) {
-			food *= dt*growFactor;
+		if(Utils.RAND.nextDouble() <= 0.5) {
+			food += dt*growFactor;
 		}
 	}
 	

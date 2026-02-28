@@ -3,8 +3,7 @@ package simulator.factories;
 import org.json.JSONObject;
 
 import simulator.misc.Vector2D;
-import simulator.model.elements.Wolf;
-import simulator.model.selection.SelectionStrategy;
+import simulator.model.*;
 
 public class WolfBuilder extends AnimalBuilder{
 	
@@ -22,9 +21,5 @@ public class WolfBuilder extends AnimalBuilder{
 	}
 	
 	@Override
-	protected void fillInData(JSONObject o) {
-	    o.put("mate_strategy", "Estrategia para buscar pareja (opcional, default 'first')");
-	    o.put("hunt_strategy", "Estrategia para cazar (opcional, default 'first')");
-	    super.fillInData(o);
-	}
+	protected void fillInData(JSONObject o) {}
 }

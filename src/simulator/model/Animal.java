@@ -1,17 +1,11 @@
-package simulator.model.elements;
+package simulator.model;
 
-import simulator.model.selection.*;
 import java.util.List;
 
 import org.json.JSONObject;
 
 import simulator.misc.Utils;
 import simulator.misc.Vector2D;
-import simulator.model.AnimalMapView;
-import simulator.model.Constants;
-import simulator.model.Diet;
-import simulator.model.Entity;
-import simulator.model.State;
 
 public abstract class Animal implements Entity, AnimalInfo {
 	
@@ -84,7 +78,7 @@ public abstract class Animal implements Entity, AnimalInfo {
 		}
 		this.dest = createRandomPosition();
 	}
-
+	
 	@Override
 	public void update(double dt) {
 		State st = this.getState();
@@ -106,13 +100,7 @@ public abstract class Animal implements Entity, AnimalInfo {
 			break;
 		}
 		
-		double w = regionMngr.getWidth();
-		double h = regionMngr.getHeight();
-		double x = pos.getX();
-		double y = pos.getY();
-		
-		if (x < 0 || x >= w || y < 0 || y >= h) {
-			adjustPosition();
+		if (adjustPosition()) {
 			setState(State.NORMAL);
 		}
 		
@@ -211,29 +199,14 @@ public abstract class Animal implements Entity, AnimalInfo {
 		mateTarget = mateStrategy.select(this, candidates);
 	}
 	
-	// TODO: SE PUEDE HACER BOOLEANO Y PONERLO CON SUPER EN WOLF
-	/*
-	private void MatePairing(double pregnantProb) {
-		if(pos.distanceTo(mateTarget.pos) < Constants.COLLISION_RANGE) {
-			desire = 0.0; mateTarget.desire = 0.0;
-			if (baby == null && Utils.RAND.nextDouble() < pregnantProb) {
-				baby = newBaby(mateTarget);
-			}
-			energyDrain();
-			mateTarget = null;
-		}
-	}
-	*/
 	private void MatePairing(double pregnantProb) {
 	    if(pos.distanceTo(mateTarget.pos) < Constants.COLLISION_RANGE) {
 	        desire = 0.0; 
 	        mateTarget.desire = 0.0;
-	        // TODO: DUDA
-	        if (baby == null && Utils.RAND.nextDouble() < pregnantProb) {
+	        if (!isPregnant() && Utils.RAND.nextDouble() < pregnantProb) {
 	            baby = newBaby(mateTarget);
 	        }
 	        energyDrain();
-	        mateTarget.mateTarget = null;
 	        mateTarget = null;
 	    }
 	}
@@ -274,7 +247,7 @@ public abstract class Animal implements Entity, AnimalInfo {
 	}
 	
 	private void destinationCheck() {
-		if (dest == null || getPosition().distanceTo(dest) < Constants.COLLISION_RANGE) {
+		if (getPosition().distanceTo(dest) < Constants.COLLISION_RANGE) {
 			dest = createRandomPosition();
 		}
 	}
@@ -286,7 +259,8 @@ public abstract class Animal implements Entity, AnimalInfo {
 		return new Vector2D(Utils.RAND.nextDouble() * (w-1), Utils.RAND.nextDouble() * (h-1));
 	}
 	
-	private void adjustPosition() {
+	private boolean adjustPosition() {
+		Vector2D posIni = pos;
 		if (regionMngr != null) {
 			double width = regionMngr.getWidth();
 			double height = regionMngr.getHeight();
@@ -300,6 +274,7 @@ public abstract class Animal implements Entity, AnimalInfo {
 			
 			this.pos = new Vector2D(x, y);
 		}
+		return !posIni.equals(pos);
 	}
 	
 	public boolean inSightRange(Animal a) {

@@ -1,15 +1,11 @@
-package simulator.model.region;
+package simulator.model;
 
-import simulator.model.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-import simulator.model.elements.Animal;
 
 public abstract class Region implements Entity, FoodSupplier, RegionInfo{
 	

@@ -1,4 +1,4 @@
-package simulator.model.elements;
+package simulator.model;
 import simulator.misc.Vector2D;
 import simulator.model.Diet;
 import simulator.model.JSONable;
