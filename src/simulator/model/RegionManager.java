@@ -1,4 +1,5 @@
 package simulator.model;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -88,7 +89,7 @@ public class RegionManager implements AnimalMapView{
 
 	@Override
 	public List<Animal> getAnimalsInRange(Animal e, Predicate<Animal> filter) {
-	    Set<Region> regionesAnexas = new HashSet<>();
+		List<Animal> regionesAnexas = new ArrayList<>();
 	    double range = e.getSightRange();
 	    
 	    int maxCol = Math.min(cols - 1, (int) ((e.getPosition().getX() + range) / regionWidth));
@@ -98,14 +99,14 @@ public class RegionManager implements AnimalMapView{
 	    
 	    for(int i = minRow; i <= maxRow; i++) {
 	    	for(int j = minCol; j <= maxCol; j++) {
-	    		regionesAnexas.add(regions[i][j]);
+	    		for (Animal a : regions[i][j].getAnimals()) {
+	    		      if (a != e && e.inSightRange(a) && filter.test(a))
+	    		    	  regionesAnexas.add(a);
+	    		}
 	    	}
 	    }
-	    // TODO: entender flatmap
-	    return regionesAnexas.stream()
-	            .flatMap(region -> region.getAnimals().stream()) 
-	            .filter(a -> a != e && e.inSightRange(a) && filter.test(a))
-	            .collect(Collectors.toList());
+	    
+	    return regionesAnexas;
 	}
 	
 	private void addAnimal(Region r, Animal a) {
@@ -144,11 +145,13 @@ public class RegionManager implements AnimalMapView{
 	public void updateAnimalRegion(Animal a) {
 		int row = (int)(a.getPosition().getY()/this.regionHeight);
 		int col = (int)(a.getPosition().getX()/this.regionWidth);
+		row = Math.max(0, Math.min(row, rows - 1));
+	    col = Math.max(0, Math.min(col, cols - 1));
 		Region regAct = this.animalRegion.get(a);
 		Region realReg = this.regions[row][col];
 		if(!realReg.equals(regAct)){
 			removeAnimal(regAct, a);
-			addAnimal(realReg, a);
+			addAnimal(realReg, a);	
 		}
 	}
 	

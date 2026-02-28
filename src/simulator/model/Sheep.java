@@ -54,7 +54,7 @@ public class Sheep extends Animal{
 
 	@Override
 	protected void setDangerStateAction() {
-		super.setMateNull();
+		super.setNormalStateAction();
 	}
 
 	@Override
@@ -67,8 +67,7 @@ public class Sheep extends Animal{
 	
 	@Override
 	protected void setDeadStateAction() {
-		
-		super.setMateNull();
+		this.setNormalStateAction();
 	}
 
 	// ----------------------------------------------------------

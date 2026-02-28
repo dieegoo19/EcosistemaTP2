@@ -60,7 +60,7 @@ public class Wolf extends Animal{
 
 	@Override
 	protected void setHungerStateAction() {
-		super.setMateNull();
+		super.setNormalStateAction();
 	}
 	
 	@Override
@@ -129,7 +129,9 @@ public class Wolf extends Animal{
 	protected void DangerAction(double dt) {}
 	
 	@Override
-	protected void DeadAction(double dt) {}
+	protected void DeadAction(double dt) {
+		this.setNormalStateAction();
+	}
 	
 	// ----------------------------------------------------------
 	// MÉTODOS AUXILIARES

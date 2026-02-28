@@ -145,9 +145,7 @@ public abstract class Animal implements Entity, AnimalInfo {
 	protected void setNormalStateAction() {
 		this.mateTarget = null;
 	}
-	protected void setMateNull() {
-		this.mateTarget = null; 
-	}
+	
 	protected abstract void setDangerStateAction();
 	protected abstract void setMateStateAction();
 	protected abstract void setHungerStateAction();
@@ -207,6 +205,7 @@ public abstract class Animal implements Entity, AnimalInfo {
 	            baby = newBaby(mateTarget);
 	        }
 	        energyDrain();
+	        mateTarget.setState(State.NORMAL);
 	        mateTarget = null;
 	    }
 	}
@@ -253,7 +252,7 @@ public abstract class Animal implements Entity, AnimalInfo {
 	}
 	
 	private Vector2D createRandomPosition() {
-		if (regionMngr == null) return new Vector2D(0,0);
+		//if (regionMngr == null) return new Vector2D(0,0);
 		double w = regionMngr.getWidth();
 		double h = regionMngr.getHeight();
 		return new Vector2D(Utils.RAND.nextDouble() * (w-1), Utils.RAND.nextDouble() * (h-1));
