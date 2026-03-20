@@ -7,6 +7,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.SwingUtilities;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -20,6 +23,7 @@ import simulator.control.Controller;
 import simulator.factories.*;
 import simulator.misc.Utils;
 import simulator.model.*;
+import simulator.view.MainWindow;
 
 
 public class Main {
@@ -47,7 +51,7 @@ public class Main {
 	// default values for some parameters
 	//
 	private final static Double DEFAULT_TIME = 10.0; // in seconds
-	private final static Double DEFAULT_DELTA_TIME = 0.03; // in seconds
+	private final static Double DEFAULT_DELTA_TIME = 1.00; // in seconds
 
 	// some attributes to stores values corresponding to command-line parameters
 	//
@@ -55,13 +59,13 @@ public class Main {
 	private static String inFile = null;
 	private static ExecMode mode = ExecMode.BATCH;
 	private static String outFile = null;
-	private static Double deltaTime = null;
+	public static Double deltaTime = null;
 	private static Boolean sv = false;
-
+	
 	// Factories attributes
-	private static Factory<SelectionStrategy> selectionStrategyFactory;
-	private static Factory<Animal> animalsFactory;
-	private static Factory<Region> regionsFactory;
+	public static Factory<SelectionStrategy> selectionStrategyFactory;
+	public static Factory<Animal> animalsFactory;
+	public static Factory<Region> regionsFactory;
 	
 	private static Simulator sim;
 	private static Controller controller;
@@ -171,6 +175,10 @@ public class Main {
 	private static void parseSimpleViewerOption(CommandLine line) throws ParseException {
 		sv = line.hasOption("sv");
 	}
+	
+	private static void parseModeOption(CommandLine line) throws ParseException {
+		//TODO hacer el parse y meterlo al buildOptions() y al parseArgs()
+	}
 
 	private static void initFactories() {
 		// selectionStrategyFactory
@@ -214,7 +222,21 @@ public class Main {
 	}
 
 	private static void startGUIMode() throws Exception {
-		throw new UnsupportedOperationException("GUI mode is not ready yet ...");
+		// throw new UnsupportedOperationException("GUI mode is not ready yet ...");
+		InputStream is = new FileInputStream(new File(inFile));
+		OutputStream os = new FileOutputStream(new File(outFile));
+		JSONObject jo = loadJSONFile(is);
+		int width = jo.getInt("width");
+		int height = jo.getInt("height");
+		int rows = jo.getInt("rows");
+		int cols = jo.getInt("cols");
+		
+		if(!jo.has("width") || !jo.has("height") || !jo.has("rows") || !jo.has("width")) sim = new Simulator(800, 600, 15, 20, animalsFactory, regionsFactory);
+		else sim = new Simulator(cols, rows, width, height, animalsFactory, regionsFactory);
+		controller = new Controller(sim);
+		controller.loadData(jo);
+		SwingUtilities.invokeAndWait(() -> new MainWindow(controller));
+		is.close();
 	}
 
 	private static void start(String[] args) throws Exception {

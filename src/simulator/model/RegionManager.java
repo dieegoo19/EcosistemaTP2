@@ -2,6 +2,7 @@ package simulator.model;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -89,7 +90,7 @@ public class RegionManager implements AnimalMapView{
 
 	@Override
 	public List<Animal> getAnimalsInRange(Animal e, Predicate<Animal> filter) {
-		List<Animal> regionesAnexas = new ArrayList<>();
+		List<Animal> animalsInRange = new ArrayList<>();
 	    double range = e.getSightRange();
 	    
 	    int maxCol = Math.min(cols - 1, (int) ((e.getPosition().getX() + range) / regionWidth));
@@ -101,12 +102,12 @@ public class RegionManager implements AnimalMapView{
 	    	for(int j = minCol; j <= maxCol; j++) {
 	    		for (Animal a : regions[i][j].getAnimals()) {
 	    		      if (a != e && e.inSightRange(a) && filter.test(a))
-	    		    	  regionesAnexas.add(a);
+	    		    	  animalsInRange.add(a);
 	    		}
 	    	}
 	    }
 	    
-	    return regionesAnexas;
+	    return animalsInRange;
 	}
 	
 	private void addAnimal(Region r, Animal a) {
@@ -168,5 +169,28 @@ public class RegionManager implements AnimalMapView{
 		}
 		return new JSONObject().put("regions", arr);
 	}
+	
+	public Iterator<RegionData> iterator(){
+		return new Iterator<RegionData>() {
+	        private int row = 0;
+	        private int col = 0;
 
+	        @Override
+	        public boolean hasNext() {
+	            return row < rows;	// La comprobación es por filas (se recorre por fils de izq a drch)
+	        }
+
+	        @Override
+	        public RegionData next() {
+	            if (!hasNext()) throw new java.util.NoSuchElementException();
+	            RegionData data = new RegionData(row, col, regions[row][col]);
+	            col++;
+	            if (col >= cols) {
+	                col = 0;
+	                row++;
+	            }
+	            return data;
+	        }
+	    };
+	}
 }

@@ -93,4 +93,43 @@ public class Controller {
 		
 		if (sv) view.close();
 	}
+	
+	public void reset(int cols, int rows, int width, int height) {
+		sim.reset(cols, rows, width, height);
+	}
+	
+	public void setRegions(JSONObject rs) {
+		fillRegions(rs);
+	}
+	
+	public void advance(double dt) {
+		sim.advance(dt);
+	}
+	
+	public void addObserver(EcoSysObserver o) {
+		sim.addObserver(o);
+	}
+	
+	public void removeObserver(EcoSysObserver o) {
+		sim.removeObserver(o);
+	}
+	
+	// TODO REVISAR
+	private void fillRegions(JSONObject rs) {
+		if (rs.has("regions")) {
+			JSONArray regions = rs.getJSONArray("regions");
+			for(int i = 0; i < regions.length(); i++) {
+				JSONObject r = regions.getJSONObject(i);
+				JSONArray rowRange = r.getJSONArray("row");
+				JSONArray colRange = r.getJSONArray("col");
+				JSONObject spec = r.getJSONObject("spec");
+			
+				for(int row = rowRange.getInt(0); row <= rowRange.getInt(1); row++) {
+					for(int col = colRange.getInt(0); col <= colRange.getInt(1); col++) {
+						sim.setRegion(row, col, spec);
+					}
+				}
+			}
+		}
+	}
 }
