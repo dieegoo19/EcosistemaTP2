@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -182,7 +183,7 @@ public class RegionManager implements AnimalMapView{
 
 	        @Override
 	        public RegionData next() {
-	            if (!hasNext()) throw new java.util.NoSuchElementException();
+	            if (!hasNext()) throw new NoSuchElementException();
 	            RegionData data = new RegionData(row, col, regions[row][col]);
 	            col++;
 	            if (col >= cols) {

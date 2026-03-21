@@ -51,13 +51,21 @@ public class Controller {
 		}
 	}
 	
-	public void loadData(JSONObject data) {
+	private void loadRegions(JSONObject data) {
 		if(data.has("regions")) {
 			JSONArray regs = data.getJSONArray("regions");
 			regs.forEach(item -> treatRegJSON((JSONObject)item));
 		}
+	}
+	
+	private void loadAnimals(JSONObject data) {
 		JSONArray animals = data.getJSONArray("animals");
 		animals.forEach(item -> treatAnimalsJSON((JSONObject)item));
+	}
+	
+	public void loadData(JSONObject data) {
+		loadRegions(data);
+		loadAnimals(data);
 	}
 	
 	private List<ObjInfo> toAnimalsInfo(List<? extends AnimalInfo> animals) {
@@ -99,7 +107,7 @@ public class Controller {
 	}
 	
 	public void setRegions(JSONObject rs) {
-		fillRegions(rs);
+		loadRegions(rs);
 	}
 	
 	public void advance(double dt) {
@@ -112,24 +120,5 @@ public class Controller {
 	
 	public void removeObserver(EcoSysObserver o) {
 		sim.removeObserver(o);
-	}
-	
-	// TODO REVISAR
-	private void fillRegions(JSONObject rs) {
-		if (rs.has("regions")) {
-			JSONArray regions = rs.getJSONArray("regions");
-			for(int i = 0; i < regions.length(); i++) {
-				JSONObject r = regions.getJSONObject(i);
-				JSONArray rowRange = r.getJSONArray("row");
-				JSONArray colRange = r.getJSONArray("col");
-				JSONObject spec = r.getJSONObject("spec");
-			
-				for(int row = rowRange.getInt(0); row <= rowRange.getInt(1); row++) {
-					for(int col = colRange.getInt(0); col <= colRange.getInt(1); col++) {
-						sim.setRegion(row, col, spec);
-					}
-				}
-			}
-		}
 	}
 }

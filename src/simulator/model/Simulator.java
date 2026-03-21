@@ -3,6 +3,8 @@ package simulator.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
+
 import org.json.JSONObject;
 import simulator.factories.Factory;
 
@@ -63,7 +65,7 @@ public class Simulator implements JSONable, Observable<EcoSysObserver> {
 	}
 	
 	private boolean deadAnimalAction(Animal a) {
-		if (a.getState() == State.DEAD) {
+		if (a.getState() == Animal.State.DEAD) {
             regionMngr.unregisterAnimal(a);
             return true;
         }
@@ -90,7 +92,7 @@ public class Simulator implements JSONable, Observable<EcoSysObserver> {
 	}
 
 	public void reset(int cols, int rows, int width, int height) {
-		animals = new ArrayList<>();
+		animals.clear();
 		regionMngr = new RegionManager(cols, rows, width, height);
 		t = 0.0;
 		

@@ -6,6 +6,14 @@ import simulator.model.State;
 
 
 public interface AnimalInfo extends JSONable { // Note that it extends JSONable  
+	public enum State {
+		NORMAL,
+		MATE,
+		HUNGER,
+		DANGER,
+		DEAD;
+	}
+	
 	public State getState();  
 	public Vector2D getPosition();  
 	public String getGeneticCode();  

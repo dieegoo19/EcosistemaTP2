@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 import simulator.control.Controller;
 import simulator.model.AnimalInfo;
@@ -14,7 +15,7 @@ import simulator.model.EcoSysObserver;
 import simulator.model.MapInfo;
 import simulator.model.RegionInfo;
 
-public class StatusBar extends JFrame implements EcoSysObserver {
+public class StatusBar extends JPanel implements EcoSysObserver {
 
 	// TODO Añadir los atributos necesarios.  
 	private Controller ctrl;
@@ -46,17 +47,14 @@ public class StatusBar extends JFrame implements EcoSysObserver {
 	}
 
 	public StatusBar(GraphicsConfiguration gc) {
-		super(gc);
 		// TODO Auto-generated constructor stub
 	}
 
 	public StatusBar(String title) throws HeadlessException {
-		super(title);
 		// TODO Auto-generated constructor stub
 	}
 
 	public StatusBar(String title, GraphicsConfiguration gc) {
-		super(title, gc);
 		// TODO Auto-generated constructor stub
 	}
 

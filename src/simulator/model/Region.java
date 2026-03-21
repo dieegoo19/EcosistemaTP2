@@ -29,7 +29,7 @@ public abstract class Region implements Entity, FoodSupplier, RegionInfo{
 	
 	protected int getAnimalsCountByDiet(Diet diet) {
 		return (int) getAnimals().stream()
-				.filter(a -> a.getDiet() == diet && a.getState() != State.DEAD)
+				.filter(a -> a.getDiet() == diet && a.getState() != Animal.State.DEAD)
 				.count();
 	}
 	
@@ -44,6 +44,6 @@ public abstract class Region implements Entity, FoodSupplier, RegionInfo{
 	}
 	
 	public List<AnimalInfo> getAnimalsInfo() {  
-		  return Collections.unmodifiableList(animalsList);
+		  return new ArrayList<>(animalsList);
 	}
 }
