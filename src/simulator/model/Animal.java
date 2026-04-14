@@ -9,6 +9,19 @@ import simulator.misc.Vector2D;
 
 public abstract class Animal implements Entity, AnimalInfo {
 	
+	public enum State {
+		NORMAL,
+		MATE,
+		HUNGER,
+		DANGER,
+		DEAD;
+	}
+	
+	public enum Diet {
+		HERBIVORE,
+		CARNIVORE;
+	}
+
 	// ----------------------------------------------------------
 	// 1. CAMPOS
 	// ----------------------------------------------------------
@@ -299,10 +312,10 @@ public abstract class Animal implements Entity, AnimalInfo {
 	public String getGeneticCode() { return geneticCode; }
 	
 	@Override
-	public Diet getDiet() { return diet; }
+	public Animal.Diet getDiet() { return diet; }
 
 	@Override
-	public State getState() { return state; }
+	public Animal.State getState() { return state; }
 
 	@Override
 	public Vector2D getPosition() { return pos; }

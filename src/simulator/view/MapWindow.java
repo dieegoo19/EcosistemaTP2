@@ -2,10 +2,8 @@ package simulator.view;
 
 import java.awt.BorderLayout;
 import java.awt.Frame;
-import java.awt.GraphicsConfiguration;
-import java.awt.HeadlessException;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.util.List;
 
 import javax.swing.*;
@@ -40,31 +38,11 @@ public class MapWindow extends JFrame implements EcoSysObserver {
 	    mainPanel.add(viewer, BorderLayout.CENTER);
 	    // en el método windowClosing, eliminar ‘MapWindow.this’ de los observadores
 	    
-	    addWindowListener(new WindowListener() {
-
-			@Override
-			public void windowOpened(WindowEvent e) { }
-
+	    addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
 				ctrl.removeObserver(MapWindow.this);
 			}
-
-			@Override
-			public void windowClosed(WindowEvent e) { }
-
-			@Override
-			public void windowIconified(WindowEvent e) { }
-
-			@Override
-			public void windowDeiconified(WindowEvent e) { }
-
-			@Override
-			public void windowActivated(WindowEvent e) { }
-
-			@Override
-			public void windowDeactivated(WindowEvent e) { }
-	    	
 	    });
 
 	    pack();
@@ -94,18 +72,10 @@ public class MapWindow extends JFrame implements EcoSysObserver {
 	}
 
 	@Override
-	public void onAnimalAdded(double time, MapInfo map, List<AnimalInfo> animals, AnimalInfo a) {
-		// TODO no se si está bien
-		SwingUtilities.invokeLater(() -> {
-	        this.viewer.update(animals, time);
-	    });
-	}
+	public void onAnimalAdded(double time, MapInfo map, List<AnimalInfo> animals, AnimalInfo a) { }
 
 	@Override
-	public void onRegionSet(int row, int col, MapInfo map, RegionInfo r) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void onRegionSet(int row, int col, MapInfo map, RegionInfo r) { }
 
 	@Override
 	public void onAdvance(double time, MapInfo map, List<AnimalInfo> animals, double dt) {

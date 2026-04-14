@@ -3,11 +3,14 @@
  */
 package simulator.view;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
 import simulator.control.Controller;
+import simulator.model.Animal;
 import simulator.model.AnimalInfo;
 import simulator.model.EcoSysObserver;
 import simulator.model.MapInfo;
@@ -17,70 +20,67 @@ import simulator.model.RegionInfo;
 public class SpeciesTableModel extends AbstractTableModel implements EcoSysObserver {
 
 	// definir atributos necesarios
+	private List<AnimalInfo> animals;
+	private List<String> speciesNames;
 	private Controller ctrl;
 	
-	
 	SpeciesTableModel(Controller ctrl) {  
-		// TODO inicializar estructuras de datos correspondientes  
+		// inicializar estructuras de datos correspondientes
 		this.ctrl = ctrl;
+		this.animals = new ArrayList<>();
+		this.speciesNames = new ArrayList<>();
 		// registrar this como observador
 		this.ctrl.addObserver(this);
 	}
 	
-	// TODO el resto de métodos van aquí …  
+	// el resto de métodos van aquí …  
 	
-	public SpeciesTableModel() {
-		// TODO Auto-generated constructor stub
-	}
+	@Override
+	public int getRowCount() { return this.speciesNames.size(); }
 
 	@Override
-	public int getRowCount() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public int getColumnCount() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+	public int getColumnCount() { return Animal.State.values().length + 1; }
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		// TODO Auto-generated method stub
-		return null;
+		String species = speciesNames.get(rowIndex);
+		
+		if(columnIndex == 0) return species;
+		
+		Animal.State state = Animal.State.values()[columnIndex - 1];
+		int cont = (int)animals.stream()
+				.filter(a -> a.getGeneticCode().equals(species) && a.getState() == state)
+				.count();
+		return cont;
 	}
 
 	@Override
-	public void onRegister(double time, MapInfo map, List<AnimalInfo> animals) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void onReset(double time, MapInfo map, List<AnimalInfo> animals) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void onAnimalAdded(double time, MapInfo map, List<AnimalInfo> animals, AnimalInfo a) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void onRegionSet(int row, int col, MapInfo map, RegionInfo r) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void onAdvance(double time, MapInfo map, List<AnimalInfo> animals, double dt) {
-		// TODO Auto-generated method stub
-
+	public String getColumnName(int columnIndex) {
+		if(columnIndex == 0) return "Species";
+		else return Animal.State.values()[columnIndex - 1].toString();
 	}
 	
-	//getColumName()	añadir funcion
+	@Override
+	public void onRegister(double time, MapInfo map, List<AnimalInfo> animals) {update(animals);}
+	@Override
+	public void onReset(double time, MapInfo map, List<AnimalInfo> animals) {update(animals);}
+	@Override
+	public void onAnimalAdded(double time, MapInfo map, List<AnimalInfo> animals, AnimalInfo a) {update(animals);}
+	@Override
+	public void onAdvance(double time, MapInfo map, List<AnimalInfo> animals, double dt) {update(animals);}
+	@Override
+	public void onRegionSet(int row, int col, MapInfo map, RegionInfo r) { }
 	
+	
+	private void update(List<AnimalInfo> animals) {
+		this.animals = animals;
+		this.speciesNames = new ArrayList<>();
+		for(AnimalInfo a : animals) {
+			if(!speciesNames.contains(a.getGeneticCode())) {
+				speciesNames.add(a.getGeneticCode());
+			}
+		}
+		Collections.sort(speciesNames);
+		this.fireTableDataChanged();
+	}
 }

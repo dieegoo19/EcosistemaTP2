@@ -1,221 +1,177 @@
 package simulator.view;
 
-import java.awt.Dialog;
-import java.awt.Dimension;
-import java.awt.Frame;
-import java.awt.GraphicsConfiguration;
-import java.awt.Window;
+import java.awt.*;
 import java.util.List;
-
-import javax.swing.BoxLayout;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JDialog;
-import javax.swing.JPanel;
-import javax.swing.JTable;
+import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-
+import org.json.JSONArray;
 import org.json.JSONObject;
-
 import simulator.control.Controller;
 import simulator.launcher.Main;
-import simulator.model.AnimalInfo;
-import simulator.model.EcoSysObserver;
-import simulator.model.MapInfo;
-import simulator.model.RegionInfo;
+import simulator.model.*;
 
 public class ChangeRegionsDialog extends JDialog implements EcoSysObserver {
-	
-	private DefaultComboBoxModel<String> regionsModel;  
-	private DefaultComboBoxModel<String> fromRowModel;  
-	private DefaultComboBoxModel<String> toRowModel;  
-	private DefaultComboBoxModel<String> fromColModel;  
-	private DefaultComboBoxModel<String> toColModel;
-	
-	private DefaultTableModel dataTableModel;  
-	private Controller ctrl;  
-	private List<JSONObject> regionsInfo;
-	
-	private String[] headers = { "Key", "Value", "Description" };
-	
-	// TODO en caso de ser necesario, añadir los atributos aquí…
-	
-	ChangeRegionsDialog(Controller ctrl) {  
-		super((Frame)null, true);  
-		this.ctrl = ctrl;  
-		initGUI();  
-		// registrar this como observer;
-		this.ctrl.addObserver(this);
-	}
-	
-	private void initGUI() {  
-		setTitle("Change Regions");  
-		JPanel mainPanel = new JPanel();  
-		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));  
-		setContentPane(mainPanel);
-		
-		// TODO crea varios paneles para organizar los componentes visuales en el  
-		//      dialogo, y añadelos al mainpanel. P.ej., uno para el texto de ayuda,
-		//      uno para la tabla, uno para los combobox, y uno para los botones.  
-		
-		// TODO crear el texto de ayuda que aparece en la parte superior del diálogo y  
-		//      añadirlo al panel correspondiente diálogo (Ver el apartado Figuras)
-		
-		// this.regionsInfo se usará para establecer la información en la tabla  
-		this.regionsInfo = Main.regionsFactory.getInfo();
-		
-		// this.dataTableModel es un modelo de tabla que incluye todos los parámetros de  
-		// la region
-		this.dataTableModel = new DefaultTableModel() {  
-			@Override  
-			public boolean isCellEditable(int row, int column) {  
-				// hacer editable solo la columna 1
-				return column == 1;
-			}  
-		};  
-		this.dataTableModel.setColumnIdentifiers(this.headers);
-		
-		// TODO crear un JTable que use dataTableModel, y añadirlo al diálogo
-		JTable table = new JTable(this.dataTableModel);
-		mainPanel.add(table);
-		// this.regionsModel es un modelo de combobox que incluye los tipos de regiones
-		this.regionsModel = new DefaultComboBoxModel<>();
-		
-		// TODO añadir la descripción de todas las regiones a regionsModel. Para eso
-		//      usa la clave “desc” o “type” de los JSONObject en regionsInfo,
-		//      ya que estos nos dan información sobre lo que puede crear la factoría.
-		
-		// TODO crear un combobox que use regionsModel y añadirlo al diálogo.
-		
-		// TODO crear 4 modelos de combobox para this.fromRowModel, this.toRowModel,
-		//      this.fromColModel y this.toColModel.
-		
-		// TODO crear 4 combobox que usen estos modelos y añadirlos al diálogo.
-		
-		// TODO crear los botones OK y Cancel y añadirlos al diálogo.
-		
-		setPreferredSize(new Dimension(700, 400)); // puedes usar otro tamaño  
-		pack();  
-		setResizable(false);  
-		setVisible(false);  
-	}
-	
-	public void open(Frame parent) {
-		setLocation(
-				parent.getLocation().x + parent.getWidth() / 2 - getWidth() / 2,
-				parent.getLocation().y + parent.getHeight() / 2 - getHeight() / 2);
-		pack();  
-		setVisible(true);  
-	}
-	
-	// TODO el resto de métodos van aquí…
 
-	public ChangeRegionsDialog() {
-		// TODO Auto-generated constructor stub
-	}
+    private DefaultComboBoxModel<String> regionsModel;
+    private DefaultComboBoxModel<String> fromRowModel;
+    private DefaultComboBoxModel<String> toRowModel;
+    private DefaultComboBoxModel<String> fromColModel;
+    private DefaultComboBoxModel<String> toColModel;
 
-	public ChangeRegionsDialog(Frame owner) {
-		super(owner);
-		// TODO Auto-generated constructor stub
-	}
+    private DefaultTableModel dataTableModel;
+    private Controller ctrl;
+    private List<JSONObject> regionsInfo;
+    private JComboBox<String> regionsComboBox;
 
-	public ChangeRegionsDialog(Dialog owner) {
-		super(owner);
-		// TODO Auto-generated constructor stub
-	}
+    private String[] headers = { "Key", "Value", "Description" };
 
-	public ChangeRegionsDialog(Window owner) {
-		super(owner);
-		// TODO Auto-generated constructor stub
-	}
+    ChangeRegionsDialog(Controller ctrl) {
+        super((Frame) null, true);
+        this.ctrl = ctrl;
+        initGUI();
+        this.ctrl.addObserver(this);
+    }
 
-	public ChangeRegionsDialog(Frame owner, boolean modal) {
-		super(owner, modal);
-		// TODO Auto-generated constructor stub
-	}
+    private void initGUI() {
+        setTitle("Change Regions");
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        setContentPane(mainPanel);
 
-	public ChangeRegionsDialog(Frame owner, String title) {
-		super(owner, title);
-		// TODO Auto-generated constructor stub
-	}
+        // Texto de ayuda
+        JLabel helpText = new JLabel("<html><p style='margin: 10px;'>Select a region type, "
+				+ "the rows/cols range, and provide values for the parameters in the <b>Value column</b> "
+				+ "(default values are used for empty fields).</p></html>");
+        helpText.setFont(helpText.getFont().deriveFont(java.awt.Font.PLAIN));
+        helpText.setAlignmentX(Component.CENTER_ALIGNMENT);
+        mainPanel.add(helpText);
 
-	public ChangeRegionsDialog(Dialog owner, boolean modal) {
-		super(owner, modal);
-		// TODO Auto-generated constructor stub
-	}
+        // Tabla
+        dataTableModel = new DefaultTableModel() {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return column == 1; // Solo la columna Value
+            }
+        };
+        dataTableModel.setColumnIdentifiers(headers);
+        JTable table = new JTable(dataTableModel);
+        mainPanel.add(new JScrollPane(table));
 
-	public ChangeRegionsDialog(Dialog owner, String title) {
-		super(owner, title);
-		// TODO Auto-generated constructor stub
-	}
+        // Panel de selección
+        this.regionsInfo = Main.regionsFactory.getInfo();
+        regionsModel = new DefaultComboBoxModel<>();
+        for (JSONObject info : regionsInfo) {
+            regionsModel.addElement(info.getString("type"));
+        }
 
-	public ChangeRegionsDialog(Window owner, ModalityType modalityType) {
-		super(owner, modalityType);
-		// TODO Auto-generated constructor stub
-	}
+        JPanel selectionPanel = new JPanel();
+        mainPanel.add(selectionPanel);
 
-	public ChangeRegionsDialog(Window owner, String title) {
-		super(owner, title);
-		// TODO Auto-generated constructor stub
-	}
+        regionsComboBox = new JComboBox<>(regionsModel);
+        regionsComboBox.addActionListener(e -> updateTableModel(regionsComboBox.getSelectedIndex()));
+        selectionPanel.add(new JLabel("Region type: "));
+        selectionPanel.add(regionsComboBox);
 
-	public ChangeRegionsDialog(Frame owner, String title, boolean modal) {
-		super(owner, title, modal);
-		// TODO Auto-generated constructor stub
-	}
+        // Modelos de coordenadas
+        fromRowModel = new DefaultComboBoxModel<>();
+        toRowModel = new DefaultComboBoxModel<>();
+        fromColModel = new DefaultComboBoxModel<>();
+        toColModel = new DefaultComboBoxModel<>();
 
-	public ChangeRegionsDialog(Dialog owner, String title, boolean modal) {
-		super(owner, title, modal);
-		// TODO Auto-generated constructor stub
-	}
+        selectionPanel.add(new JLabel("Row from/to: "));
+        selectionPanel.add(new JComboBox<>(fromRowModel));
+        selectionPanel.add(new JComboBox<>(toRowModel));
+        selectionPanel.add(new JLabel("Column from/to: "));
+        selectionPanel.add(new JComboBox<>(fromColModel));
+        selectionPanel.add(new JComboBox<>(toColModel));
 
-	public ChangeRegionsDialog(Window owner, String title, ModalityType modalityType) {
-		super(owner, title, modalityType);
-		// TODO Auto-generated constructor stub
-	}
+        // Botones
+        JPanel buttonsPanel = new JPanel();
+        mainPanel.add(buttonsPanel);
 
-	public ChangeRegionsDialog(Frame owner, String title, boolean modal, GraphicsConfiguration gc) {
-		super(owner, title, modal, gc);
-		// TODO Auto-generated constructor stub
-	}
+        JButton cancelButton = new JButton("Cancel");
+        cancelButton.addActionListener(e -> setVisible(false));
+        buttonsPanel.add(cancelButton);
 
-	public ChangeRegionsDialog(Dialog owner, String title, boolean modal, GraphicsConfiguration gc) {
-		super(owner, title, modal, gc);
-		// TODO Auto-generated constructor stub
-	}
+        JButton okButton = new JButton("OK");
+        okButton.addActionListener(e -> handleOk());
+        buttonsPanel.add(okButton);
 
-	public ChangeRegionsDialog(Window owner, String title, ModalityType modalityType, GraphicsConfiguration gc) {
-		super(owner, title, modalityType, gc);
-		// TODO Auto-generated constructor stub
-	}
+        if (!regionsInfo.isEmpty()) updateTableModel(0);
 
-	@Override
-	public void onRegister(double time, MapInfo map, List<AnimalInfo> animals) {
-		// TODO Auto-generated method stub
+        setPreferredSize(new Dimension(750, 450));
+        pack();
+        setResizable(false);
+        setVisible(false);
+    }
 
-	}
+    public void open(Frame parent) {
+        setLocation(
+          parent.getLocation().x + parent.getWidth() / 2 - getWidth() / 2,
+          parent.getLocation().y + parent.getHeight() / 2 - getHeight() / 2);
+        pack();  
+        setVisible(true);  
+      }
 
-	@Override
-	public void onReset(double time, MapInfo map, List<AnimalInfo> animals) {
-		// TODO Auto-generated method stub
+    private void updateTableModel(int index) {
+        dataTableModel.setRowCount(0);
+        JSONObject data = regionsInfo.get(index).getJSONObject("data");
+        for (String key : data.keySet()) {
+            dataTableModel.addRow(new Object[]{key, "", data.getString(key)});
+        }
+    }
 
-	}
+    private void handleOk() {
+        try {
+            JSONObject regionData = new JSONObject();
+            for (int i = 0; i < dataTableModel.getRowCount(); i++) {
+                String key = (String) dataTableModel.getValueAt(i, 0);
+                String val = (String) dataTableModel.getValueAt(i, 1);
+                if (val != null && val != "") {
+                    regionData.put(key, Double.parseDouble(val));
+                }
+                else if(val == "") regionData.put(key, -1);
+            }
 
-	@Override
-	public void onAnimalAdded(double time, MapInfo map, List<AnimalInfo> animals, AnimalInfo a) {
-		// TODO Auto-generated method stub
+            JSONObject spec = new JSONObject();
+            spec.put("type", regionsModel.getElementAt(regionsComboBox.getSelectedIndex()));
+            spec.put("data", regionData);
 
-	}
+            JSONObject regionEntry = new JSONObject();
+            regionEntry.put("row", new JSONArray().put(Integer.parseInt((String) fromRowModel.getSelectedItem()))
+                    .put(Integer.parseInt((String) toRowModel.getSelectedItem())));
+            regionEntry.put("col", new JSONArray().put(Integer.parseInt((String) fromColModel.getSelectedItem()))
+                    .put(Integer.parseInt((String) toColModel.getSelectedItem())));
+            regionEntry.put("spec", spec);
 
-	@Override
-	public void onRegionSet(int row, int col, MapInfo map, RegionInfo r) {
-		// TODO Auto-generated method stub
+            JSONObject finalRS = new JSONObject().put("regions", new JSONArray().put(regionEntry));
 
-	}
+            ctrl.setRegions(finalRS);
+            setVisible(false);
+        } catch (Exception e) {
+            ViewUtils.showErrorMsg("Error setting regions: " + e.getMessage());
+        }
+    }
 
-	@Override
-	public void onAdvance(double time, MapInfo map, List<AnimalInfo> animals, double dt) {
-		// TODO Auto-generated method stub
+    private void updateCoords(MapInfo map) {
+        fromRowModel.removeAllElements();
+        toRowModel.removeAllElements();
+        fromColModel.removeAllElements();
+        toColModel.removeAllElements();
+        for (int i = 0; i < map.getRows(); i++) {
+            fromRowModel.addElement("" + i);
+            toRowModel.addElement("" + i);
+        }
+        for (int i = 0; i < map.getCols(); i++) {
+            fromColModel.addElement("" + i);
+            toColModel.addElement("" + i);
+        }
+    }
 
-	}
-
+    @Override public void onRegister(double time, MapInfo map, List<AnimalInfo> animals) { updateCoords(map); }
+    @Override public void onReset(double time, MapInfo map, List<AnimalInfo> animals) { updateCoords(map); }
+    @Override public void onAnimalAdded(double time, MapInfo map, List<AnimalInfo> animals, AnimalInfo a) {}
+    @Override public void onRegionSet(int row, int col, MapInfo map, RegionInfo r) {}
+    @Override public void onAdvance(double time, MapInfo map, List<AnimalInfo> animals, double dt) {}
+    
 }

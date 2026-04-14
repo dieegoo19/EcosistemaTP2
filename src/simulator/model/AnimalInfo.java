@@ -1,23 +1,15 @@
 package simulator.model;
 import simulator.misc.Vector2D;
-import simulator.model.Diet;
 import simulator.model.JSONable;
-import simulator.model.State;
 
 
 public interface AnimalInfo extends JSONable { // Note that it extends JSONable  
-	public enum State {
-		NORMAL,
-		MATE,
-		HUNGER,
-		DANGER,
-		DEAD;
-	}
 	
-	public State getState();  
+	
+	public Animal.State getState();  
 	public Vector2D getPosition();  
 	public String getGeneticCode();  
-	public Diet getDiet();  
+	public Animal.Diet getDiet();  
 	public double getSpeed();  
 	public double getSightRange();  
 	public double getEnergy();  

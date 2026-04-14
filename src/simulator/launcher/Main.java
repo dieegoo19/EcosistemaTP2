@@ -7,9 +7,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.SwingUtilities;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -51,13 +48,13 @@ public class Main {
 	// default values for some parameters
 	//
 	private final static Double DEFAULT_TIME = 10.0; // in seconds
-	private final static Double DEFAULT_DELTA_TIME = 1.00; // in seconds
+	private final static Double DEFAULT_DELTA_TIME = 0.03; // in seconds
 
 	// some attributes to stores values corresponding to command-line parameters
 	//
 	private static Double time = null;
 	private static String inFile = null;
-	private static ExecMode mode = ExecMode.BATCH;
+	private static ExecMode mode = ExecMode.GUI;
 	private static String outFile = null;
 	public static Double deltaTime = null;
 	private static Boolean sv = false;
@@ -81,15 +78,14 @@ public class Main {
 		CommandLineParser parser = new DefaultParser();
 		try {
 			CommandLine line = parser.parse(cmdLineOptions, args);
+			parseModeOption(line);
 			parseHelpOption(line, cmdLineOptions);
 			parseInFileOption(line);
 			parseTimeOption(line);
 			parseDeltaTimeOption(line);
 			parseOutFileOption(line);
 			parseSimpleViewerOption(line);
-			// if there are some remaining arguments, then something wrong is
-			// provided in the command line!
-			//
+			
 			String[] remaining = line.getArgs();
 			if (remaining.length > 0) {
 				String error = "Illegal arguments:";
@@ -125,7 +121,12 @@ public class Main {
 	    cmdLineOptions.addOption(Option.builder("dt").longOpt("delta-time").hasArg()
 	    		.desc("Time per step. Default: " + DEFAULT_DELTA_TIME).build());
 	    // viewer
-	    cmdLineOptions.addOption(Option.builder("sv").longOpt("simple-viewer").desc("Show viewer.").build());
+	    cmdLineOptions.addOption(Option.builder("sv").longOpt("simple-viewer").desc("Show the viewer window in BATCH mode.").build());
+	    
+	    // mode
+	    cmdLineOptions.addOption(Option.builder("m").longOpt("mode").hasArg().desc("Execution Mode. Possible values: 'batch' (Batch mode),"
+	    		+ "'gui' (Graphical User Interface mode). Default value: 'gui'.")
+	    		.build());
 	    
 		return cmdLineOptions;
 	}
@@ -147,8 +148,8 @@ public class Main {
 	
 	private static void parseOutFileOption(CommandLine line) throws ParseException {
 		outFile = line.getOptionValue("o");
-		if (outFile == null) {
-			throw new ParseException("No output file found");
+		if (mode == ExecMode.BATCH && outFile == null) {
+			throw new ParseException("In batch mode an output file is required");
 		}
 	}
 
@@ -177,7 +178,8 @@ public class Main {
 	}
 	
 	private static void parseModeOption(CommandLine line) throws ParseException {
-		//TODO hacer el parse y meterlo al buildOptions() y al parseArgs()
+		String m = line.getOptionValue("m", ExecMode.GUI.toString());
+		if(m.equalsIgnoreCase("batch")) mode = ExecMode.BATCH;
 	}
 
 	private static void initFactories() {
@@ -222,21 +224,25 @@ public class Main {
 	}
 
 	private static void startGUIMode() throws Exception {
-		// throw new UnsupportedOperationException("GUI mode is not ready yet ...");
-		InputStream is = new FileInputStream(new File(inFile));
-		OutputStream os = new FileOutputStream(new File(outFile));
-		JSONObject jo = loadJSONFile(is);
-		int width = jo.getInt("width");
-		int height = jo.getInt("height");
-		int rows = jo.getInt("rows");
-		int cols = jo.getInt("cols");
-		
-		if(!jo.has("width") || !jo.has("height") || !jo.has("rows") || !jo.has("width")) sim = new Simulator(800, 600, 15, 20, animalsFactory, regionsFactory);
-		else sim = new Simulator(cols, rows, width, height, animalsFactory, regionsFactory);
-		controller = new Controller(sim);
-		controller.loadData(jo);
-		SwingUtilities.invokeAndWait(() -> new MainWindow(controller));
-		is.close();
+		if (inFile != null) {
+	        try (InputStream is = new FileInputStream(new File(inFile))) {
+	            JSONObject jo = loadJSONFile(is);
+	            int width = jo.optInt("width", 800);
+	            int height = jo.optInt("height", 600);
+	            int rows = jo.optInt("rows", 15);
+	            int cols = jo.optInt("cols", 20);
+
+	            sim = new Simulator(cols, rows, width, height, animalsFactory, regionsFactory);
+	            controller = new Controller(sim);
+	            controller.loadData(jo);
+	        }
+	    } else {
+	        // Modo GUI sin archivo
+	        sim = new Simulator(20, 15, 800, 600, animalsFactory, regionsFactory);
+	        controller = new Controller(sim);
+	    }
+
+	    new MainWindow(controller);
 	}
 
 	private static void start(String[] args) throws Exception {

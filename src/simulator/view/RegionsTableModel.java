@@ -5,6 +5,7 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 import simulator.control.Controller;
+import simulator.model.Animal;
 import simulator.model.AnimalInfo;
 import simulator.model.EcoSysObserver;
 import simulator.model.MapInfo;
@@ -12,68 +13,84 @@ import simulator.model.RegionInfo;
 
 public class RegionsTableModel extends AbstractTableModel implements EcoSysObserver {
 
-	// TODO definir atributos necesarios
+	// definir atributos necesarios
+	private MapInfo map;
 	private Controller ctrl;
 	
 	RegionsTableModel(Controller ctrl) {  
-		// TODO inicializar estructuras de datos correspondientes  
+		// inicializar estructuras de datos correspondientes  
 		this.ctrl = ctrl;
 		// registrar this como observador
 		this.ctrl.addObserver(this);
 	}
 	
-	// TODO el resto de métodos van aquí…  
-	
-	public RegionsTableModel() {
-		// TODO Auto-generated constructor stub
-	}
+	// el resto de métodos van aquí…
 
 	@Override
-	public int getRowCount() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+	public int getRowCount() { return map == null ? 0 : map.getCols() * map.getRows(); }
 
 	@Override
 	public int getColumnCount() {
-		// TODO Auto-generated method stub
-		return 0;
+		return 3 + Animal.Diet.values().length;
 	}
 
 	@Override
+	public String getColumnName(int col) {
+		if(col == 0) return "Row";
+		else if(col == 1) return "Col";
+		else if(col == 2) return "Desc.";
+		else return Animal.Diet.values()[col - 3].toString();
+	}
+	
+	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		// TODO Auto-generated method stub
-		return null;
+		int row = rowIndex / map.getCols();
+        int col = rowIndex % map.getCols();
+        
+        RegionInfo region = null;
+        for(MapInfo.RegionData it: map) {		// Iterador 
+        	if(it.row() == row && it.col() == col) {
+        		region = it.r();
+        		break;
+        	}
+        }
+        
+        if(columnIndex == 0) return row;
+        if(columnIndex == 1) return col;
+        if(columnIndex == 2) return region.toString();
+        
+        Animal.Diet diet = Animal.Diet.values()[columnIndex - 3];
+        int cont = (int)region.getAnimalsInfo().stream()
+				.filter(a -> a.getDiet() == diet)
+				.count();
+		return cont;
 	}
 
 	@Override
 	public void onRegister(double time, MapInfo map, List<AnimalInfo> animals) {
-		// TODO Auto-generated method stub
-
+		this.map = map;
+		this.fireTableDataChanged();
 	}
 
 	@Override
 	public void onReset(double time, MapInfo map, List<AnimalInfo> animals) {
-		// TODO Auto-generated method stub
-
+		this.map = map;
+		this.fireTableDataChanged();
 	}
-
-	@Override
-	public void onAnimalAdded(double time, MapInfo map, List<AnimalInfo> animals, AnimalInfo a) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void onRegionSet(int row, int col, MapInfo map, RegionInfo r) {
-		// TODO Auto-generated method stub
-
-	}
-
+	
 	@Override
 	public void onAdvance(double time, MapInfo map, List<AnimalInfo> animals, double dt) {
-		// TODO Auto-generated method stub
-
+		this.fireTableDataChanged();
+	}
+	
+	@Override
+	public void onAnimalAdded(double time, MapInfo map, List<AnimalInfo> animals, AnimalInfo a) {
+		this.fireTableDataChanged();
+	}
+	
+	@Override
+	public void onRegionSet(int row, int col, MapInfo map, RegionInfo r) {
+		this.fireTableDataChanged();
 	}
 
 }

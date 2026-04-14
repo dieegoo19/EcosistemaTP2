@@ -2,8 +2,8 @@ package simulator.view;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 
 import javax.swing.*;
 
@@ -26,8 +26,9 @@ public class MainWindow extends JFrame {
 	    // crear ControlPanel y añadirlo en PAGE_START de mainPanel
 	    ControlPanel cp = new ControlPanel(ctrl);
 	    mainPanel.add(cp, BorderLayout.PAGE_START);
-	    // TODO crear StatusBar y añadirlo en PAGE_END de mainPanel  
-
+	    // crear StatusBar y añadirlo en PAGE_END de mainPanel  
+	    StatusBar st = new StatusBar(ctrl);
+	    mainPanel.add(st, BorderLayout.PAGE_END);
 	    // Definición del panel de tablas (usa un BoxLayout vertical)  
 	    JPanel contentPanel = new JPanel();  
 	    contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));  
@@ -44,47 +45,10 @@ public class MainWindow extends JFrame {
 	    regTable.setPreferredSize(new Dimension(500, 250));
 	    contentPanel.add(regTable);
 	    // llama a ViewUtils.quit(MainWindow.this) en el método windowClosing
-	    addWindowListener(new WindowListener() {
-
-			@Override
-			public void windowOpened(WindowEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-
+	    addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
 				ViewUtils.quit(MainWindow.this);
-			}
-
-			@Override
-			public void windowClosed(WindowEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
-			public void windowIconified(WindowEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
-			public void windowDeiconified(WindowEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
-			public void windowActivated(WindowEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
-			public void windowDeactivated(WindowEvent e) {
-				// TODO Auto-generated method stub
-				
 			}
 		});
 
