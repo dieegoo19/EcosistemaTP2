@@ -16,45 +16,43 @@ import simulator.model.RegionInfo;
 
 public class MapWindow extends JFrame implements EcoSysObserver {
 
-	  private Controller ctrl;  
-	  private AbstractMapViewer viewer;  
-	  private Frame parent;
+	private Controller ctrl;
+	private AbstractMapViewer viewer;
+	private Frame parent;
 
-	  MapWindow(Frame parent, Controller ctrl) {  
-	    super("[MAP VIEWER]");  
-	    this.ctrl = ctrl;  
-	    this.parent = parent;  
-	    initGUI();
-	    // registrar this como observador
-	    ctrl.addObserver(this);
-	  }
+	MapWindow(Frame parent, Controller ctrl) {
+		super("[MAP VIEWER]");
+		this.ctrl = ctrl;
+		this.parent = parent;
+		initGUI();
+		// registrar this como observador
+		ctrl.addObserver(this);
+	}
 
-	  private void initGUI() {  
-	    JPanel mainPanel = new JPanel(new BorderLayout());  
-	    // poner contentPane como mainPanel
-	    this.setContentPane(mainPanel);
-	    // crear el viewer y añadirlo a mainPanel (en el centro)
-	    viewer = new MapViewer();
-	    mainPanel.add(viewer, BorderLayout.CENTER);
-	    // en el método windowClosing, eliminar ‘MapWindow.this’ de los observadores
-	    
-	    addWindowListener(new WindowAdapter() {
+	private void initGUI() {
+		JPanel mainPanel = new JPanel(new BorderLayout());
+		// poner contentPane como mainPanel
+		this.setContentPane(mainPanel);
+		// crear el viewer y añadirlo a mainPanel (en el centro)
+		viewer = new MapViewer();
+		mainPanel.add(viewer, BorderLayout.CENTER);
+		// en el método windowClosing, eliminar ‘MapWindow.this’ de los observadores
+
+		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
 				ctrl.removeObserver(MapWindow.this);
 			}
-	    });
+		});
 
-	    pack();
-	    if (this.parent != null)
-	      setLocation(
-	        this.parent.getLocation().x + parent.getWidth() / 2 - getWidth() / 2,
-	        this.parent.getLocation().y + parent.getHeight() / 2 - getHeight() / 2);
-	      setResizable(false);  
-	      setVisible(true);  
-	  }  
-	
-	
+		pack();
+		if (this.parent != null)
+			setLocation(this.parent.getLocation().x + parent.getWidth() / 2 - getWidth() / 2,
+					this.parent.getLocation().y + parent.getHeight() / 2 - getHeight() / 2);
+		setResizable(false);
+		setVisible(true);
+	}
+
 	@Override
 	public void onRegister(double time, MapInfo map, List<AnimalInfo> animals) {
 		SwingUtilities.invokeLater(() -> {
@@ -72,10 +70,12 @@ public class MapWindow extends JFrame implements EcoSysObserver {
 	}
 
 	@Override
-	public void onAnimalAdded(double time, MapInfo map, List<AnimalInfo> animals, AnimalInfo a) { }
+	public void onAnimalAdded(double time, MapInfo map, List<AnimalInfo> animals, AnimalInfo a) {
+	}
 
 	@Override
-	public void onRegionSet(int row, int col, MapInfo map, RegionInfo r) { }
+	public void onRegionSet(int row, int col, MapInfo map, RegionInfo r) {
+	}
 
 	@Override
 	public void onAdvance(double time, MapInfo map, List<AnimalInfo> animals, double dt) {

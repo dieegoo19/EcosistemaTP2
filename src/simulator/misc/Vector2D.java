@@ -1,4 +1,5 @@
 package simulator.misc;
+
 import org.json.JSONArray;
 
 public class Vector2D {
@@ -22,7 +23,7 @@ public class Vector2D {
 		this.x = x;
 		this.y = y;
 	}
-	
+
 	// return the inner product of this Vector a and b
 	public double dot(Vector2D that) {
 		return x * that.x + y * that.y;
@@ -81,9 +82,9 @@ public class Vector2D {
 		double cosine = Math.cos(angle);
 
 		// rotation matrix
-    // double matrix[2][2] = { { cosine, -sine }, { sine, cosine } };
-    // r.x = matrix[0][0] * x + matrix[0][1] * y;
-    // r.y = matrix[1][0] * x + matrix[1][1] * y;
+		// double matrix[2][2] = { { cosine, -sine }, { sine, cosine } };
+		// r.x = matrix[0][0] * x + matrix[0][1] * y;
+		// r.y = matrix[1][0] * x + matrix[1][1] * y;
 
 		Vector2D r = new Vector2D();
 		r.x = cosine * x + (-sine) * y;

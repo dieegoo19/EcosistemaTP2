@@ -16,15 +16,14 @@ import simulator.model.EcoSysObserver;
 import simulator.model.MapInfo;
 import simulator.model.RegionInfo;
 
-
 public class SpeciesTableModel extends AbstractTableModel implements EcoSysObserver {
 
 	// definir atributos necesarios
 	private List<AnimalInfo> animals;
 	private List<String> speciesNames;
 	private Controller ctrl;
-	
-	SpeciesTableModel(Controller ctrl) {  
+
+	SpeciesTableModel(Controller ctrl) {
 		// inicializar estructuras de datos correspondientes
 		this.ctrl = ctrl;
 		this.animals = new ArrayList<>();
@@ -32,51 +31,69 @@ public class SpeciesTableModel extends AbstractTableModel implements EcoSysObser
 		// registrar this como observador
 		this.ctrl.addObserver(this);
 	}
-	
-	// el resto de métodos van aquí …  
-	
-	@Override
-	public int getRowCount() { return this.speciesNames.size(); }
+
+	// el resto de métodos van aquí …
 
 	@Override
-	public int getColumnCount() { return Animal.State.values().length + 1; }
+	public int getRowCount() {
+		return this.speciesNames.size();
+	}
+
+	@Override
+	public int getColumnCount() {
+		return Animal.State.values().length + 1;
+	}
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		String species = speciesNames.get(rowIndex);
-		
-		if(columnIndex == 0) return species;
-		
+
+		if (columnIndex == 0)
+			return species;
+
 		Animal.State state = Animal.State.values()[columnIndex - 1];
-		int cont = (int)animals.stream()
-				.filter(a -> a.getGeneticCode().equals(species) && a.getState() == state)
+		int cont = (int) animals.stream().filter(a -> a.getGeneticCode().equals(species) && a.getState() == state)
 				.count();
 		return cont;
 	}
 
 	@Override
 	public String getColumnName(int columnIndex) {
-		if(columnIndex == 0) return "Species";
-		else return Animal.State.values()[columnIndex - 1].toString();
+		if (columnIndex == 0)
+			return "Species";
+		else
+			return Animal.State.values()[columnIndex - 1].toString();
 	}
-	
+
 	@Override
-	public void onRegister(double time, MapInfo map, List<AnimalInfo> animals) {update(animals);}
+	public void onRegister(double time, MapInfo map, List<AnimalInfo> animals) {
+		update(animals);
+	}
+
 	@Override
-	public void onReset(double time, MapInfo map, List<AnimalInfo> animals) {update(animals);}
+	public void onReset(double time, MapInfo map, List<AnimalInfo> animals) {
+		update(animals);
+	}
+
 	@Override
-	public void onAnimalAdded(double time, MapInfo map, List<AnimalInfo> animals, AnimalInfo a) {update(animals);}
+	public void onAnimalAdded(double time, MapInfo map, List<AnimalInfo> animals, AnimalInfo a) {
+		update(animals);
+	}
+
 	@Override
-	public void onAdvance(double time, MapInfo map, List<AnimalInfo> animals, double dt) {update(animals);}
+	public void onAdvance(double time, MapInfo map, List<AnimalInfo> animals, double dt) {
+		update(animals);
+	}
+
 	@Override
-	public void onRegionSet(int row, int col, MapInfo map, RegionInfo r) { }
-	
-	
+	public void onRegionSet(int row, int col, MapInfo map, RegionInfo r) {
+	}
+
 	private void update(List<AnimalInfo> animals) {
 		this.animals = animals;
 		this.speciesNames = new ArrayList<>();
-		for(AnimalInfo a : animals) {
-			if(!speciesNames.contains(a.getGeneticCode())) {
+		for (AnimalInfo a : animals) {
+			if (!speciesNames.contains(a.getGeneticCode())) {
 				speciesNames.add(a.getGeneticCode());
 			}
 		}

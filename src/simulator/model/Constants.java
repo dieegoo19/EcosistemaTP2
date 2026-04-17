@@ -1,7 +1,7 @@
 package simulator.model;
 
 public final class Constants {
-    // se usan en Animal y subclases
+	// se usan en Animal y subclases
 	public final static double INIT_ENERGY = 100.0;
 	public final static double MUTATION_TOLERANCE = 0.2;
 	public final static double NEARBY_FACTOR = 60.0;
@@ -10,7 +10,7 @@ public final class Constants {
 	public final static double MAX_ENERGY = 100.0;
 	public final static double MAX_DESIRE = 100.0;
 
-    // se usan en Sheep
+	// se usan en Sheep
 	public final static String SHEEP_GENETIC_CODE = "Sheep";
 	public final static double INIT_SIGHT_SHEEP = 40;
 	public final static double INIT_SPEED_SHEEP = 35;
@@ -22,7 +22,7 @@ public final class Constants {
 	public final static double DESIRE_INCREASE_RATE_SHEEP = 40.0;
 	public final static double PREGNANT_PROBABILITY_SHEEP = 0.9;
 
-    // se usan en Wolf
+	// se usan en Wolf
 	public final static String WOLF_GENETIC_CODE = "Wolf";
 	public final static double INIT_SIGHT_WOLF = 50;
 	public final static double INIT_SPEED_WOLF = 60;

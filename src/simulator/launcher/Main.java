@@ -22,7 +22,6 @@ import simulator.misc.Utils;
 import simulator.model.*;
 import simulator.view.MainWindow;
 
-
 public class Main {
 
 	private enum ExecMode {
@@ -58,17 +57,17 @@ public class Main {
 	private static String outFile = null;
 	public static Double deltaTime = null;
 	private static Boolean sv = false;
-	
+
 	// Factories attributes
 	public static Factory<SelectionStrategy> selectionStrategyFactory;
 	public static Factory<Animal> animalsFactory;
 	public static Factory<Region> regionsFactory;
-	
+
 	private static Simulator sim;
 	private static Controller controller;
-	
+
 	private static void parseArgs(String[] args) {
-		
+
 		// define the valid command line options
 		//
 		Options cmdLineOptions = buildOptions();
@@ -85,7 +84,7 @@ public class Main {
 			parseDeltaTimeOption(line);
 			parseOutFileOption(line);
 			parseSimpleViewerOption(line);
-			
+
 			String[] remaining = line.getArgs();
 			if (remaining.length > 0) {
 				String error = "Illegal arguments:";
@@ -111,23 +110,24 @@ public class Main {
 		cmdLineOptions.addOption(Option.builder("i").longOpt("input").hasArg().desc("A configuration file.").build());
 
 		// steps
-		cmdLineOptions.addOption(Option.builder("t").longOpt("time").hasArg()
-				.desc("A real number representing the total simulation time in seconds. Default value: "
-						+ DEFAULT_TIME + ".")
+		cmdLineOptions.addOption(Option.builder("t").longOpt("time").hasArg().desc(
+				"A real number representing the total simulation time in seconds. Default value: " + DEFAULT_TIME + ".")
 				.build());
 		// output file
 		cmdLineOptions.addOption(Option.builder("o").longOpt("output").hasArg().desc("Output file.").build());
 		// delta time
-	    cmdLineOptions.addOption(Option.builder("dt").longOpt("delta-time").hasArg()
-	    		.desc("Time per step. Default: " + DEFAULT_DELTA_TIME).build());
-	    // viewer
-	    cmdLineOptions.addOption(Option.builder("sv").longOpt("simple-viewer").desc("Show the viewer window in BATCH mode.").build());
-	    
-	    // mode
-	    cmdLineOptions.addOption(Option.builder("m").longOpt("mode").hasArg().desc("Execution Mode. Possible values: 'batch' (Batch mode),"
-	    		+ "'gui' (Graphical User Interface mode). Default value: 'gui'.")
-	    		.build());
-	    
+		cmdLineOptions.addOption(Option.builder("dt").longOpt("delta-time").hasArg()
+				.desc("Time per step. Default: " + DEFAULT_DELTA_TIME).build());
+		// viewer
+		cmdLineOptions.addOption(
+				Option.builder("sv").longOpt("simple-viewer").desc("Show the viewer window in BATCH mode.").build());
+
+		// mode
+		cmdLineOptions.addOption(Option.builder("m").longOpt("mode").hasArg()
+				.desc("Execution Mode. Possible values: 'batch' (Batch mode),"
+						+ "'gui' (Graphical User Interface mode). Default value: 'gui'.")
+				.build());
+
 		return cmdLineOptions;
 	}
 
@@ -145,7 +145,7 @@ public class Main {
 			throw new ParseException("In batch mode an input configuration file is required");
 		}
 	}
-	
+
 	private static void parseOutFileOption(CommandLine line) throws ParseException {
 		outFile = line.getOptionValue("o");
 		if (mode == ExecMode.BATCH && outFile == null) {
@@ -162,7 +162,7 @@ public class Main {
 			throw new ParseException("Invalid value for time: " + t);
 		}
 	}
-	
+
 	private static void parseDeltaTimeOption(CommandLine line) throws ParseException {
 		String dt = line.getOptionValue("dt", DEFAULT_DELTA_TIME.toString());
 		try {
@@ -172,14 +172,15 @@ public class Main {
 			throw new ParseException("Invalid value for delta-time: " + dt);
 		}
 	}
-	
+
 	private static void parseSimpleViewerOption(CommandLine line) throws ParseException {
 		sv = line.hasOption("sv");
 	}
-	
+
 	private static void parseModeOption(CommandLine line) throws ParseException {
 		String m = line.getOptionValue("m", ExecMode.GUI.toString());
-		if(m.equalsIgnoreCase("batch")) mode = ExecMode.BATCH;
+		if (m.equalsIgnoreCase("batch"))
+			mode = ExecMode.BATCH;
 	}
 
 	private static void initFactories() {
@@ -188,7 +189,7 @@ public class Main {
 		selectionStrategyBuilders.add(new SelectFirstBuilder());
 		selectionStrategyBuilders.add(new SelectClosestBuilder());
 		selectionStrategyBuilders.add(new SelectYoungestBuilder());
-		selectionStrategyFactory = new BuilderBasedFactory<>(selectionStrategyBuilders);		
+		selectionStrategyFactory = new BuilderBasedFactory<>(selectionStrategyBuilders);
 		// animalsFactory
 		List<Builder<Animal>> animalBuilders = new ArrayList<>();
 		animalBuilders.add(new SheepBuilder(selectionStrategyFactory));
@@ -205,7 +206,6 @@ public class Main {
 		return new JSONObject(new JSONTokener(in));
 	}
 
-
 	private static void startBatchMode() throws Exception {
 		InputStream is = new FileInputStream(new File(inFile));
 		OutputStream os = new FileOutputStream(new File(outFile));
@@ -214,7 +214,7 @@ public class Main {
 		int height = jo.getInt("height");
 		int rows = jo.getInt("rows");
 		int cols = jo.getInt("cols");
-		
+
 		sim = new Simulator(cols, rows, width, height, animalsFactory, regionsFactory);
 		controller = new Controller(sim);
 		controller.loadData(jo);
@@ -225,24 +225,24 @@ public class Main {
 
 	private static void startGUIMode() throws Exception {
 		if (inFile != null) {
-	        try (InputStream is = new FileInputStream(new File(inFile))) {
-	            JSONObject jo = loadJSONFile(is);
-	            int width = jo.optInt("width", 800);
-	            int height = jo.optInt("height", 600);
-	            int rows = jo.optInt("rows", 15);
-	            int cols = jo.optInt("cols", 20);
+			try (InputStream is = new FileInputStream(new File(inFile))) {
+				JSONObject jo = loadJSONFile(is);
+				int width = jo.optInt("width", 800);
+				int height = jo.optInt("height", 600);
+				int rows = jo.optInt("rows", 15);
+				int cols = jo.optInt("cols", 20);
 
-	            sim = new Simulator(cols, rows, width, height, animalsFactory, regionsFactory);
-	            controller = new Controller(sim);
-	            controller.loadData(jo);
-	        }
-	    } else {
-	        // Modo GUI sin archivo
-	        sim = new Simulator(20, 15, 800, 600, animalsFactory, regionsFactory);
-	        controller = new Controller(sim);
-	    }
+				sim = new Simulator(cols, rows, width, height, animalsFactory, regionsFactory);
+				controller = new Controller(sim);
+				controller.loadData(jo);
+			}
+		} else {
+			// Modo GUI sin archivo
+			sim = new Simulator(20, 15, 800, 600, animalsFactory, regionsFactory);
+			controller = new Controller(sim);
+		}
 
-	    new MainWindow(controller);
+		new MainWindow(controller);
 	}
 
 	private static void start(String[] args) throws Exception {
