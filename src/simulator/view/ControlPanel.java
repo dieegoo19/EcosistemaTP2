@@ -51,16 +51,6 @@ class ControlPanel extends JPanel {
 		toolaBar = new JToolBar();
 		add(toolaBar, BorderLayout.PAGE_START);
 
-		// Orden cambiado, preguntar (antes abajo del todo)
-		// Inicializar this.fc con una instancia de JFileChooser. Para que siempre
-		// abre en la carpeta de ejemplos puedes usar:
-		this.fc = new JFileChooser();
-		this.fc.setCurrentDirectory(new File(System.getProperty("user.dir") + "/resources/examples"));
-		// Inicializar this.changeRegionsDialog con instancias del diálogo de cambio de
-		// regiones
-		// crear ChangeRegionsDialog.java
-		this.changeRegionsDialog = new ChangeRegionsDialog(ctrl);
-
 		// crear los diferentes botones/atributos y añadirlos a la toolBar.
 		// Todos ellos han de tener su correspondiente tooltip. Puedes utilizar
 		// this.toolaBar.addSeparator() para añadir la línea de separación vertical
@@ -115,9 +105,7 @@ class ControlPanel extends JPanel {
 			try {
 				this.stopped = false;
 				this.setEnableButtons(false);
-				runSim((Integer) this.stepsSpinner.getValue(), Double.parseDouble(this.deltaText.getText())); // Lanzamos
-																												// la
-																												// ejecución
+				runSim((Integer) this.stepsSpinner.getValue(), Double.parseDouble(this.deltaText.getText())); // Lanzamos la ejecución
 			} catch (NumberFormatException nfe) {
 				ViewUtils.showErrorMsg(nfe.getMessage());
 				this.stopped = true;
@@ -167,6 +155,15 @@ class ControlPanel extends JPanel {
 		this.quitButton.addActionListener(e -> ViewUtils.quit(this));
 		this.toolaBar.add(quitButton);
 
+		// Inicializar this.fc con una instancia de JFileChooser. Para que siempre
+		// abre en la carpeta de ejemplos puedes usar:
+		this.fc = new JFileChooser();
+		this.fc.setCurrentDirectory(new File(System.getProperty("user.dir") + "/resources/examples"));
+		// Inicializar this.changeRegionsDialog con instancias del diálogo de cambio de
+		// regiones
+		// crear ChangeRegionsDialog.java
+		this.changeRegionsDialog = new ChangeRegionsDialog(ctrl);
+		
 	}
 
 	private void runSim(int n, double dt) {
