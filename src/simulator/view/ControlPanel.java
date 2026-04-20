@@ -30,6 +30,8 @@ class ControlPanel extends JPanel {
 
 	private JToolBar toolaBar;
 	private JFileChooser fc;
+	
+	// Atributos de los componentes
 	private JButton openButton;
 	private JButton viewerButton;
 	private JButton regionsButton;
@@ -39,10 +41,9 @@ class ControlPanel extends JPanel {
 
 	private JSpinner stepsSpinner;
 	private JTextField deltaText;
-	private JSpinner delay;
-	
+	private JSpinner delaySpinner;
+
 	private volatile Thread thread;
-	
 
 	ControlPanel(Controller ctrl) {
 		this.ctrl = ctrl;
@@ -53,86 +54,90 @@ class ControlPanel extends JPanel {
 		setLayout(new BorderLayout());
 		toolaBar = new JToolBar();
 		add(toolaBar, BorderLayout.PAGE_START);
-
+		
 		// crear los diferentes botones/atributos y añadirlos a la toolBar.
 		// Todos ellos han de tener su correspondiente tooltip. Puedes utilizar
 		// this.toolaBar.addSeparator() para añadir la línea de separación vertical
 		// entre las componentes que lo necesiten.
-
+		
 		// Open Button
-		this.openButton = new JButton();
-		this.openButton.setToolTipText("Open");
-		this.openButton.setIcon(new ImageIcon(ICONS.class.getResource("open.png")));
-		this.openButton.addActionListener((e) -> {
-			if (this.fc.showOpenDialog(ViewUtils.getWindow(this)) == JFileChooser.APPROVE_OPTION) {
-				File file = this.fc.getSelectedFile();
+		openButton = new JButton();
+		openButton.setToolTipText("Open");
+		openButton.setIcon(new ImageIcon(ICONS.class.getResource("open.png")));
+		openButton.addActionListener((e) -> {
+			if (fc.showOpenDialog(ViewUtils.getWindow(this)) == JFileChooser.APPROVE_OPTION) {
 				try {
-					JSONObject jo = new JSONObject(new JSONTokener(new FileInputStream(file)));
-
-					int cols = jo.getInt("cols");
-					int rows = jo.getInt("rows");
-					int width = jo.getInt("width");
-					int height = jo.getInt("height");
-
-					ctrl.reset(cols, rows, width, height);
+					JSONObject jo = new JSONObject(new JSONTokener(new FileInputStream(fc.getSelectedFile())));
+					ctrl.reset(jo.getInt("cols"), jo.getInt("rows"), jo.getInt("width"), jo.getInt("height"));
 					ctrl.loadData(jo);
-
 				} catch (Exception ex) {
-					ViewUtils.showErrorMsg("Error al cargar el archivo " + ex.getMessage());
+					ViewUtils.showErrorMsg("Error al cargar el archivo: " + ex.getMessage());
 				}
 			}
 		});
-		this.toolaBar.add(openButton);
+		toolaBar.add(openButton);
 
 		// Viewer Button
-		this.toolaBar.addSeparator();
-		this.viewerButton = new JButton();
-		this.viewerButton.setToolTipText("Viewer");
-		this.viewerButton.setIcon(new ImageIcon(ICONS.class.getResource("viewer.png")));
-		this.viewerButton.addActionListener(e -> new MapWindow(ViewUtils.getWindow(this), ctrl));
-		this.toolaBar.add(viewerButton);
+		toolaBar.addSeparator();
+		viewerButton = new JButton();
+		viewerButton.setToolTipText("Viewer");
+		viewerButton.setIcon(new ImageIcon(ICONS.class.getResource("viewer.png")));
+		viewerButton.addActionListener(e -> new MapWindow(ViewUtils.getWindow(this), ctrl));
+		toolaBar.add(viewerButton);
 
 		// Regions Button
-		this.regionsButton = new JButton();
-		this.regionsButton.setToolTipText("Regions");
-		this.regionsButton.setIcon(new ImageIcon(ICONS.class.getResource("regions.png")));
-		this.regionsButton.addActionListener(e -> this.changeRegionsDialog.open(ViewUtils.getWindow(this)));
-		this.toolaBar.add(regionsButton);
+		regionsButton = new JButton();
+		regionsButton.setToolTipText("Regions");
+		regionsButton.setIcon(new ImageIcon(ICONS.class.getResource("regions.png")));
+		regionsButton.addActionListener(e -> changeRegionsDialog.open(ViewUtils.getWindow(this)));
+		toolaBar.add(regionsButton);
 
-		// Botón Run
-		this.toolaBar.addSeparator();
-		this.runButton = new JButton();
-		this.runButton.setToolTipText("Run");
-		this.runButton.setIcon(new ImageIcon(ICONS.class.getResource("run.png")));
-		this.runButton.addActionListener(e -> {
+		// Run Button
+		toolaBar.addSeparator();
+		runButton = new JButton();
+		runButton.setToolTipText("Run");
+		runButton.setIcon(new ImageIcon(ICONS.class.getResource("run.png")));
+		runButton.addActionListener(e -> {
 			try {
-				this.setEnableButtons(false);
-				this.thread = new Thread();
-				runSim((Integer) this.stepsSpinner.getValue(), Double.parseDouble(this.deltaText.getText()), (Integer) this.delay.getValue()); // Lanzamos la ejecución
-				setEnableButtons(true);
-				this.thread = null;
+				int steps = (Integer) stepsSpinner.getValue();
+				double dt = Double.parseDouble(deltaText.getText());
+				int delayValue = (Integer) delaySpinner.getValue();
+
+				setEnableButtons(false);
+				
+				thread = new Thread(() -> {
+					try {
+						runSim(steps, dt, delayValue);
+					} finally {
+						SwingUtilities.invokeLater(() -> {
+							setEnableButtons(true);
+							thread = null;
+						});
+					}
+				});
+				thread.start();
+
 			} catch (NumberFormatException nfe) {
-				ViewUtils.showErrorMsg(nfe.getMessage());
-				setEnableButtons(true);
+				ViewUtils.showErrorMsg("Delta-Time Invalido: " + deltaText.getText());
 			}
 		});
-		this.toolaBar.add(runButton);
+		toolaBar.add(runButton);
 
-		// Botón Stop
-		this.stopButton = new JButton();
-		this.stopButton.setToolTipText("Stop");
-		this.stopButton.setIcon(new ImageIcon(ICONS.class.getResource("stop.png")));
-		this.stopButton.addActionListener(e -> {
-			if(this.thread != null) this.thread = null;
-			this.setEnableButtons(true);
+		// Stop Button
+		stopButton = new JButton();
+		stopButton.setToolTipText("Stop");
+		stopButton.setIcon(new ImageIcon(ICONS.class.getResource("stop.png")));
+		stopButton.setEnabled(false);
+		stopButton.addActionListener(e -> {
+			if (thread != null) {
+				thread.interrupt();
+			}
 		});
-		this.stopButton.setEnabled(false);
-		this.toolaBar.add(stopButton);
+		toolaBar.add(stopButton);
 
 		// Spinner Steps
-		JLabel steps = new JLabel("Steps: ");
-		this.toolaBar.add(steps);
-		stepsSpinner = new JSpinner(new SpinnerNumberModel(5000, 1, 10000, 100));
+		toolaBar.add(new JLabel(" Steps: "));
+		stepsSpinner = new JSpinner(new SpinnerNumberModel(10000, 1, 10000, 100));
 		stepsSpinner.setToolTipText("Simulation steps to run: 1-10000");
 		stepsSpinner.setMaximumSize(new Dimension(80, 40));
 		stepsSpinner.setMinimumSize(new Dimension(80, 40));
@@ -140,69 +145,68 @@ class ControlPanel extends JPanel {
 		toolaBar.add(stepsSpinner);
 
 		// Text Delta-Time
-		JLabel dt = new JLabel("Delta-Time: ");
-		this.toolaBar.add(dt);
-		deltaText = new JTextField();
-		deltaText.setToolTipText("Delta Time");
+		toolaBar.add(new JLabel(" Delta-Time: "));
+		deltaText = new JTextField(5);
+		deltaText.setToolTipText("Delta-Time");
 		deltaText.setText("" + Main.deltaTime);
 		deltaText.setMaximumSize(new Dimension(80, 40));
 		deltaText.setMinimumSize(new Dimension(80, 40));
 		deltaText.setPreferredSize(new Dimension(80, 40));
 		toolaBar.add(deltaText);
 
-		JLabel Delay = new JLabel("Delay: ");
-		this.toolaBar.add(steps);
-		delay = new JSpinner(new SpinnerNumberModel(100, 0, 1000, 1));
-		delay .setToolTipText("Delay: 0-1000");
-		delay .setMaximumSize(new Dimension(80, 40));
-		delay .setMinimumSize(new Dimension(80, 40));
-		delay .setPreferredSize(new Dimension(80, 40));
-		toolaBar.add(delay);
-		
-		// Quit Button
-		this.toolaBar.add(Box.createGlue()); // this aligns the button to the right
-		this.toolaBar.addSeparator();
-		this.quitButton = new JButton();
-		this.quitButton.setToolTipText("Quit");
-		this.quitButton.setIcon(new ImageIcon(ICONS.class.getResource("exit.png")));
-		this.quitButton.addActionListener(e -> ViewUtils.quit(this));
-		this.toolaBar.add(quitButton);
+		// Spinner Delay
+		toolaBar.add(new JLabel(" Delay: "));
+		delaySpinner = new JSpinner(new SpinnerNumberModel(0, 0, 1000, 1));
+		delaySpinner.setToolTipText("Delay entre steps (ms)");
+		delaySpinner.setMaximumSize(new Dimension(80, 40));
+		delaySpinner.setMinimumSize(new Dimension(80, 40));
+		delaySpinner.setPreferredSize(new Dimension(80, 40));
+		toolaBar.add(delaySpinner);
 
-		// Inicializar this.fc con una instancia de JFileChooser. Para que siempre
-		// abre en la carpeta de ejemplos puedes usar:
+		// Quit Button
+		toolaBar.add(Box.createGlue());
+		toolaBar.addSeparator();
+		quitButton = new JButton();
+		quitButton.setToolTipText("Exit the application");
+		quitButton.setIcon(new ImageIcon(ICONS.class.getResource("exit.png")));
+		quitButton.addActionListener(e -> ViewUtils.quit(this));
+		toolaBar.add(quitButton);
+	
+		// Inicialización de componentes auxiliares
 		this.fc = new JFileChooser();
 		this.fc.setCurrentDirectory(new File(System.getProperty("user.dir") + "/resources/examples"));
-		// Inicializar this.changeRegionsDialog con instancias del diálogo de cambio de
-		// regiones
-		// crear ChangeRegionsDialog.java
 		this.changeRegionsDialog = new ChangeRegionsDialog(ctrl);
 		
 	}
 
+
 	private void runSim(int n, double dt, int delay) {
-		while ( n > 0 &&  this.thread != null) {
+		while (n > 0 && !Thread.currentThread().isInterrupted()) {
 			try {
-				this.ctrl.advance(dt);
-				Thread.sleep(delay);
+				ctrl.advance(dt);
+				if (delay > 0) {
+					Thread.sleep(delay);
+				}
 				n--;
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
 			} catch (Exception e) {
-				// llamar a ViewUtils.showErrorMsg con el mensaje de error que corresponda
-				ViewUtils.showErrorMsg(e.getMessage());
-				// activar todos los botones
-				setEnableButtons(true);
+				SwingUtilities.invokeLater(() -> ViewUtils.showErrorMsg("Execution error: " + e.getMessage()));
+				return;
 			}
 		}
 	}
 
 	private void setEnableButtons(boolean enable) {
-		this.openButton.setEnabled(enable);
-		this.viewerButton.setEnabled(enable);
-		this.regionsButton.setEnabled(enable);
-		this.runButton.setEnabled(enable);
-		this.quitButton.setEnabled(enable);
-		this.stepsSpinner.setEnabled(enable);
-		this.deltaText.setEnabled(enable);
+		openButton.setEnabled(enable);
+		viewerButton.setEnabled(enable);
+		regionsButton.setEnabled(enable);
+		runButton.setEnabled(enable);
+		stepsSpinner.setEnabled(enable);
+		deltaText.setEnabled(enable);
+		delaySpinner.setEnabled(enable);
+		quitButton.setEnabled(enable);
 
-		this.stopButton.setEnabled(!enable);
+		stopButton.setEnabled(!enable);
 	}
 }
