@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
 import simulator.control.Controller;
@@ -67,22 +68,30 @@ public class SpeciesTableModel extends AbstractTableModel implements EcoSysObser
 
 	@Override
 	public void onRegister(double time, MapInfo map, List<AnimalInfo> animals) {
+		SwingUtilities.invokeLater(() -> {
 		update(animals);
+		});
 	}
 
 	@Override
 	public void onReset(double time, MapInfo map, List<AnimalInfo> animals) {
+		SwingUtilities.invokeLater(() -> {
 		update(animals);
+		});
 	}
 
 	@Override
 	public void onAnimalAdded(double time, MapInfo map, List<AnimalInfo> animals, AnimalInfo a) {
+		SwingUtilities.invokeLater(() -> {
 		update(animals);
+		});
 	}
 
 	@Override
 	public void onAdvance(double time, MapInfo map, List<AnimalInfo> animals, double dt) {
+		SwingUtilities.invokeLater(() -> {
 		update(animals);
+		});
 	}
 
 	@Override

@@ -2,6 +2,7 @@ package simulator.view;
 
 import java.util.List;
 
+import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
 import simulator.control.Controller;
@@ -75,29 +76,39 @@ public class RegionsTableModel extends AbstractTableModel implements EcoSysObser
 
 	@Override
 	public void onRegister(double time, MapInfo map, List<AnimalInfo> animals) {
+		SwingUtilities.invokeLater(() -> {
 		this.map = map;
 		this.fireTableDataChanged();
+		});
 	}
 
 	@Override
 	public void onReset(double time, MapInfo map, List<AnimalInfo> animals) {
+		SwingUtilities.invokeLater(() -> {
 		this.map = map;
 		this.fireTableDataChanged();
+		});
 	}
 
 	@Override
 	public void onAdvance(double time, MapInfo map, List<AnimalInfo> animals, double dt) {
+		SwingUtilities.invokeLater(() -> {
 		this.fireTableDataChanged();
+		});
 	}
 
 	@Override
 	public void onAnimalAdded(double time, MapInfo map, List<AnimalInfo> animals, AnimalInfo a) {
+		SwingUtilities.invokeLater(() -> {
 		this.fireTableDataChanged();
+		});
 	}
 
 	@Override
 	public void onRegionSet(int row, int col, MapInfo map, RegionInfo r) {
+		SwingUtilities.invokeLater(() -> {
 		this.fireTableDataChanged();
+		});
 	}
 
 }

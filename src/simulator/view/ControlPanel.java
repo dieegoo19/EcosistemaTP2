@@ -30,7 +30,6 @@ class ControlPanel extends JPanel {
 
 	private JToolBar toolaBar;
 	private JFileChooser fc;
-	private boolean stopped = true; // utilizado en los botones de run/stop
 	private JButton openButton;
 	private JButton viewerButton;
 	private JButton regionsButton;
@@ -40,6 +39,10 @@ class ControlPanel extends JPanel {
 
 	private JSpinner stepsSpinner;
 	private JTextField deltaText;
+	private JSpinner delay;
+	
+	private volatile Thread thread;
+	
 
 	ControlPanel(Controller ctrl) {
 		this.ctrl = ctrl;
@@ -103,12 +106,13 @@ class ControlPanel extends JPanel {
 		this.runButton.setIcon(new ImageIcon(ICONS.class.getResource("run.png")));
 		this.runButton.addActionListener(e -> {
 			try {
-				this.stopped = false;
 				this.setEnableButtons(false);
-				runSim((Integer) this.stepsSpinner.getValue(), Double.parseDouble(this.deltaText.getText())); // Lanzamos la ejecución
+				this.thread = new Thread();
+				runSim((Integer) this.stepsSpinner.getValue(), Double.parseDouble(this.deltaText.getText()), (Integer) this.delay.getValue()); // Lanzamos la ejecución
+				setEnableButtons(true);
+				this.thread = null;
 			} catch (NumberFormatException nfe) {
 				ViewUtils.showErrorMsg(nfe.getMessage());
-				this.stopped = true;
 				setEnableButtons(true);
 			}
 		});
@@ -119,7 +123,7 @@ class ControlPanel extends JPanel {
 		this.stopButton.setToolTipText("Stop");
 		this.stopButton.setIcon(new ImageIcon(ICONS.class.getResource("stop.png")));
 		this.stopButton.addActionListener(e -> {
-			this.stopped = true;
+			if(this.thread != null) this.thread = null;
 			this.setEnableButtons(true);
 		});
 		this.stopButton.setEnabled(false);
@@ -146,6 +150,15 @@ class ControlPanel extends JPanel {
 		deltaText.setPreferredSize(new Dimension(80, 40));
 		toolaBar.add(deltaText);
 
+		JLabel Delay = new JLabel("Delay: ");
+		this.toolaBar.add(steps);
+		delay = new JSpinner(new SpinnerNumberModel(100, 0, 1000, 1));
+		delay .setToolTipText("Delay: 0-1000");
+		delay .setMaximumSize(new Dimension(80, 40));
+		delay .setMinimumSize(new Dimension(80, 40));
+		delay .setPreferredSize(new Dimension(80, 40));
+		toolaBar.add(delay);
+		
 		// Quit Button
 		this.toolaBar.add(Box.createGlue()); // this aligns the button to the right
 		this.toolaBar.addSeparator();
@@ -166,17 +179,17 @@ class ControlPanel extends JPanel {
 		
 	}
 
-	private void runSim(int n, double dt) {
-		if (n > 0 && !this.stopped) {
+	private void runSim(int n, double dt, int delay) {
+		while ( n > 0 &&  this.thread != null) {
 			try {
 				this.ctrl.advance(dt);
-				SwingUtilities.invokeLater(() -> runSim(n - 1, dt));
+				Thread.sleep(delay);
+				n--;
 			} catch (Exception e) {
 				// llamar a ViewUtils.showErrorMsg con el mensaje de error que corresponda
 				ViewUtils.showErrorMsg(e.getMessage());
 				// activar todos los botones
 				setEnableButtons(true);
-				this.stopped = true;
 			}
 		}
 	}

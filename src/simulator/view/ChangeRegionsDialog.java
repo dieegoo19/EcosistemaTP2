@@ -171,12 +171,16 @@ public class ChangeRegionsDialog extends JDialog implements EcoSysObserver {
 
 	@Override
 	public void onRegister(double time, MapInfo map, List<AnimalInfo> animals) {
-		updateCoords(map);
+		SwingUtilities.invokeLater(() -> {
+			updateCoords(map);
+		});
 	}
 
 	@Override
 	public void onReset(double time, MapInfo map, List<AnimalInfo> animals) {
-		updateCoords(map);
+		SwingUtilities.invokeLater(() -> {
+			updateCoords(map);
+		});
 	}
 
 	@Override
