@@ -1,6 +1,7 @@
 package simulator.view;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
@@ -15,9 +16,26 @@ import simulator.model.RegionInfo;
 public class RegionsTableModel extends AbstractTableModel implements EcoSysObserver {
 
 	// definir atributos necesarios
-	private MapInfo map;
+	//private MapInfo map;
+	private List<Info> info;
 	private Controller ctrl;
 
+	
+	private class Info {
+		int row;
+		int col;
+		String desc;
+		Map<Animal.Diet, Integer> animalsPorDieta;
+		
+		Info(Integer row, Integer col, String desc, Map<Animal.Diet, Integer> miMapa) {
+			this.row = row;
+			this.col = col;
+			this.desc = desc;
+			this.animalsPorDieta = miMapa;
+		}
+		
+	}
+	
 	RegionsTableModel(Controller ctrl) {
 		// inicializar estructuras de datos correspondientes
 		this.ctrl = ctrl;
@@ -29,6 +47,7 @@ public class RegionsTableModel extends AbstractTableModel implements EcoSysObser
 
 	@Override
 	public int getRowCount() {
+		this.info.
 		return map == null ? 0 : map.getCols() * map.getRows();
 	}
 
@@ -93,7 +112,16 @@ public class RegionsTableModel extends AbstractTableModel implements EcoSysObser
 	@Override
 	public void onAdvance(double time, MapInfo map, List<AnimalInfo> animals, double dt) {
 		SwingUtilities.invokeLater(() -> {
-		this.fireTableDataChanged();
+			for(MapInfo.RegionData r : map) {
+				
+				Map<Animal.Diet, Integer> miMapa;
+				for(AnimalInfo a : r.r().getAnimalsInfo()) {
+					miMapa.put(a.getDiet(), miMapa.get(a.getDiet()) + 1);
+				}
+				
+				Info i = new Info(r.row(), r.col(), r.r().toString(), miMapa);
+			}
+			this.fireTableDataChanged();
 		});
 	}
 
