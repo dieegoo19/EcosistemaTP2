@@ -7,8 +7,8 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="resources"/>
-	<classpathentry kind="lib" path="C:/Users/Pelufli/Documents/GitHub/EcosistemaTP2/lib/lib/commons-cli-1.4.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Pelufli/Documents/GitHub/EcosistemaTP2/lib/lib/json.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Pelufli/Documents/GitHub/EcosistemaTP2/lib/lib/viewer.jar"/>
+	<classpathentry kind="lib" path="C:/Users/DjMor/Desktop/TP2/Ecosystem-TP2/TP2/Ecosystem/lib/commons-cli-1.4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/DjMor/Desktop/TP2/Ecosystem-TP2/TP2/Ecosystem/lib/json.jar"/>
+	<classpathentry kind="lib" path="C:/Users/DjMor/Desktop/TP2/Ecosystem-TP2/TP2/Ecosystem/lib/viewer.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
