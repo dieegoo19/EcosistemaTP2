@@ -128,7 +128,7 @@ public class RegionsTableModel extends AbstractTableModel implements EcoSysObser
 			List<AnimalInfo> animalsInfo = reg.r().getAnimalsInfo();
 
 			for (Animal.Diet diet : Animal.Diet.values()) {
-				newMap.put(diet, (int) animalsInfo.stream().filter(a -> a.getDiet() == diet).count());
+				newMap.put(diet, (int) animalsInfo.stream().filter(a -> a != null && a.getDiet() == diet).count());
 			}
 
 			info.add(new Info(reg.row(), reg.col(), reg.r().toString(), newMap));
