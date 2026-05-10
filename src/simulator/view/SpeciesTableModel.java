@@ -1,11 +1,9 @@
-/**
- * 
- */
 package simulator.view;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.SwingUtilities;
@@ -21,15 +19,14 @@ import simulator.model.RegionInfo;
 public class SpeciesTableModel extends AbstractTableModel implements EcoSysObserver {
 
 	// definir atributos necesarios
-	//private List<AnimalInfo> animals;
-	private Map<String, Map<State, Integer>> info;
+	private Map<String, Map<Animal.State, Integer>> info;
 	private List<String> speciesNames;
 	private Controller ctrl;
 
 	SpeciesTableModel(Controller ctrl) {
 		// inicializar estructuras de datos correspondientes
 		this.ctrl = ctrl;
-		this.animals = new ArrayList<>();
+		this.info = new HashMap<>();
 		this.speciesNames = new ArrayList<>();
 		// registrar this como observador
 		this.ctrl.addObserver(this);
@@ -39,7 +36,7 @@ public class SpeciesTableModel extends AbstractTableModel implements EcoSysObser
 
 	@Override
 	public int getRowCount() {
-		return this.speciesNames.size();
+		return this.info.size();
 	}
 
 	@Override
@@ -49,15 +46,10 @@ public class SpeciesTableModel extends AbstractTableModel implements EcoSysObser
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		String species = speciesNames.get(rowIndex);
-
-		if (columnIndex == 0)
-			return species;
-
-		Animal.State state = Animal.State.values()[columnIndex - 1];
-		int cont = (int) animals.stream().filter(a -> a.getGeneticCode().equals(species) && a.getState() == state)
-				.count();
-		return cont;
+		String specie = speciesNames.get(rowIndex);
+		if(columnIndex == 0) return specie;
+		Animal.State[] states = Animal.State.values();
+		return info.get(specie).get(states[columnIndex - 1]);
 	}
 
 	@Override
@@ -71,28 +63,28 @@ public class SpeciesTableModel extends AbstractTableModel implements EcoSysObser
 	@Override
 	public void onRegister(double time, MapInfo map, List<AnimalInfo> animals) {
 		SwingUtilities.invokeLater(() -> {
-		update(animals);
+			update(animals);
 		});
 	}
 
 	@Override
 	public void onReset(double time, MapInfo map, List<AnimalInfo> animals) {
 		SwingUtilities.invokeLater(() -> {
-		update(animals);
+			update(animals);
 		});
 	}
 
 	@Override
 	public void onAnimalAdded(double time, MapInfo map, List<AnimalInfo> animals, AnimalInfo a) {
 		SwingUtilities.invokeLater(() -> {
-		update(animals);
+			update(animals);
 		});
 	}
 
 	@Override
 	public void onAdvance(double time, MapInfo map, List<AnimalInfo> animals, double dt) {
 		SwingUtilities.invokeLater(() -> {
-		update(animals);
+			update(animals);
 		});
 	}
 
@@ -101,14 +93,22 @@ public class SpeciesTableModel extends AbstractTableModel implements EcoSysObser
 	}
 
 	private void update(List<AnimalInfo> animals) {
-		this.animals = animals;
 		this.speciesNames = new ArrayList<>();
+		this.info = new HashMap<>();
 		for (AnimalInfo a : animals) {
 			if (!speciesNames.contains(a.getGeneticCode())) {
 				speciesNames.add(a.getGeneticCode());
 			}
 		}
 		Collections.sort(speciesNames);
+		Animal.State[] states = Animal.State.values();
+		for(String sp: speciesNames) {
+			Map<Animal.State, Integer> newMap = new HashMap<>();
+			for(Animal.State st: states) {
+				newMap.put(st, (int)animals.stream().filter(a -> a.getGeneticCode() == sp && a.getState() == st).count());
+			}
+			info.put(sp, newMap);
+		}
 		this.fireTableDataChanged();
 	}
 }

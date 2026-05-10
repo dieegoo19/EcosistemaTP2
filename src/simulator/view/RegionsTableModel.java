@@ -1,6 +1,8 @@
 package simulator.view;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.SwingUtilities;
@@ -16,7 +18,6 @@ import simulator.model.RegionInfo;
 public class RegionsTableModel extends AbstractTableModel implements EcoSysObserver {
 
 	// definir atributos necesarios
-	//private MapInfo map;
 	private List<Info> info;
 	private Controller ctrl;
 
@@ -25,13 +26,13 @@ public class RegionsTableModel extends AbstractTableModel implements EcoSysObser
 		int row;
 		int col;
 		String desc;
-		Map<Animal.Diet, Integer> animalsPorDieta;
+		Map<Animal.Diet, Integer> animalsPerDiet;
 		
 		Info(Integer row, Integer col, String desc, Map<Animal.Diet, Integer> miMapa) {
 			this.row = row;
 			this.col = col;
 			this.desc = desc;
-			this.animalsPorDieta = miMapa;
+			this.animalsPerDiet = miMapa;
 		}
 		
 	}
@@ -39,6 +40,7 @@ public class RegionsTableModel extends AbstractTableModel implements EcoSysObser
 	RegionsTableModel(Controller ctrl) {
 		// inicializar estructuras de datos correspondientes
 		this.ctrl = ctrl;
+		this.info = new ArrayList<Info>();
 		// registrar this como observador
 		this.ctrl.addObserver(this);
 	}
@@ -47,8 +49,7 @@ public class RegionsTableModel extends AbstractTableModel implements EcoSysObser
 
 	@Override
 	public int getRowCount() {
-		this.info.
-		return map == null ? 0 : map.getCols() * map.getRows();
+		return info == null ? 0 : info.size();
 	}
 
 	@Override
@@ -70,57 +71,37 @@ public class RegionsTableModel extends AbstractTableModel implements EcoSysObser
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		int row = rowIndex / map.getCols();
-		int col = rowIndex % map.getCols();
-
-		RegionInfo region = null;
-		for (MapInfo.RegionData it : map) { // Iterador
-			if (it.row() == row && it.col() == col) {
-				region = it.r();
-				break;
-			}
-		}
-
 		if (columnIndex == 0)
-			return row;
+			return info.get(rowIndex).row;
 		if (columnIndex == 1)
-			return col;
+			return info.get(rowIndex).col;
 		if (columnIndex == 2)
-			return region.toString();
-
-		Animal.Diet diet = Animal.Diet.values()[columnIndex - 3];
-		int cont = (int) region.getAnimalsInfo().stream().filter(a -> a.getDiet() == diet).count();
-		return cont;
+			return info.get(rowIndex).desc;
+		
+		Animal.Diet[] diets = Animal.Diet.values();
+		return info.get(rowIndex).animalsPerDiet.get(diets[columnIndex - 3]);
 	}
 
 	@Override
 	public void onRegister(double time, MapInfo map, List<AnimalInfo> animals) {
 		SwingUtilities.invokeLater(() -> {
-		this.map = map;
-		this.fireTableDataChanged();
+			update(map);
+			this.fireTableDataChanged();
 		});
 	}
 
 	@Override
 	public void onReset(double time, MapInfo map, List<AnimalInfo> animals) {
 		SwingUtilities.invokeLater(() -> {
-		this.map = map;
-		this.fireTableDataChanged();
+			update(map);
+			this.fireTableDataChanged();
 		});
 	}
 
 	@Override
 	public void onAdvance(double time, MapInfo map, List<AnimalInfo> animals, double dt) {
 		SwingUtilities.invokeLater(() -> {
-			for(MapInfo.RegionData r : map) {
-				
-				Map<Animal.Diet, Integer> miMapa;
-				for(AnimalInfo a : r.r().getAnimalsInfo()) {
-					miMapa.put(a.getDiet(), miMapa.get(a.getDiet()) + 1);
-				}
-				
-				Info i = new Info(r.row(), r.col(), r.r().toString(), miMapa);
-			}
+			update(map);
 			this.fireTableDataChanged();
 		});
 	}
@@ -128,15 +109,31 @@ public class RegionsTableModel extends AbstractTableModel implements EcoSysObser
 	@Override
 	public void onAnimalAdded(double time, MapInfo map, List<AnimalInfo> animals, AnimalInfo a) {
 		SwingUtilities.invokeLater(() -> {
-		this.fireTableDataChanged();
+			this.fireTableDataChanged();
 		});
 	}
 
 	@Override
 	public void onRegionSet(int row, int col, MapInfo map, RegionInfo r) {
 		SwingUtilities.invokeLater(() -> {
-		this.fireTableDataChanged();
+			update(map);
+			this.fireTableDataChanged();
 		});
 	}
 
+	private void update(MapInfo map) {
+		info.clear();
+		for(MapInfo.RegionData reg: map) {
+			Map<Animal.Diet, Integer> newMap = new HashMap<>();
+			
+			List<AnimalInfo> animalsInfo = reg.r().getAnimalsInfo();
+			
+			for(Animal.Diet diet: Animal.Diet.values()) {
+				newMap.put(diet, (int)animalsInfo.stream().filter(a -> a.getDiet() == diet).count());
+			}
+			
+			info.add(new Info(reg.row(), reg.col(), reg.r().toString(), newMap));
+		}
+	}
+	
 }

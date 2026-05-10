@@ -190,6 +190,7 @@ class ControlPanel extends JPanel {
 				n--;
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
+				return;
 			} catch (Exception e) {
 				SwingUtilities.invokeLater(() -> ViewUtils.showErrorMsg("Execution error: " + e.getMessage()));
 				return;
