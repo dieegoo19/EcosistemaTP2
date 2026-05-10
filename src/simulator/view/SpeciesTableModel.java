@@ -47,7 +47,8 @@ public class SpeciesTableModel extends AbstractTableModel implements EcoSysObser
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		String specie = speciesNames.get(rowIndex);
-		if(columnIndex == 0) return specie;
+		if (columnIndex == 0)
+			return specie;
 		Animal.State[] states = Animal.State.values();
 		return info.get(specie).get(states[columnIndex - 1]);
 	}
@@ -102,10 +103,11 @@ public class SpeciesTableModel extends AbstractTableModel implements EcoSysObser
 		}
 		Collections.sort(speciesNames);
 		Animal.State[] states = Animal.State.values();
-		for(String sp: speciesNames) {
+		for (String sp : speciesNames) {
 			Map<Animal.State, Integer> newMap = new HashMap<>();
-			for(Animal.State st: states) {
-				newMap.put(st, (int)animals.stream().filter(a -> a.getGeneticCode() == sp && a.getState() == st).count());
+			for (Animal.State st : states) {
+				newMap.put(st,
+						(int) animals.stream().filter(a -> a.getGeneticCode() == sp && a.getState() == st).count());
 			}
 			info.put(sp, newMap);
 		}

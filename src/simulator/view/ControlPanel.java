@@ -30,7 +30,7 @@ class ControlPanel extends JPanel {
 
 	private JToolBar toolaBar;
 	private JFileChooser fc;
-	
+
 	// Atributos de los componentes
 	private JButton openButton;
 	private JButton viewerButton;
@@ -54,12 +54,12 @@ class ControlPanel extends JPanel {
 		setLayout(new BorderLayout());
 		toolaBar = new JToolBar();
 		add(toolaBar, BorderLayout.PAGE_START);
-		
+
 		// crear los diferentes botones/atributos y añadirlos a la toolBar.
 		// Todos ellos han de tener su correspondiente tooltip. Puedes utilizar
 		// this.toolaBar.addSeparator() para añadir la línea de separación vertical
 		// entre las componentes que lo necesiten.
-		
+
 		// Open Button
 		openButton = new JButton();
 		openButton.setToolTipText("Open");
@@ -104,7 +104,7 @@ class ControlPanel extends JPanel {
 				int delayValue = (Integer) delaySpinner.getValue();
 
 				setEnableButtons(false);
-				
+
 				thread = new Thread(() -> {
 					try {
 						runSim(steps, dt, delayValue);
@@ -171,14 +171,13 @@ class ControlPanel extends JPanel {
 		quitButton.setIcon(new ImageIcon(ICONS.class.getResource("exit.png")));
 		quitButton.addActionListener(e -> ViewUtils.quit(this));
 		toolaBar.add(quitButton);
-	
+
 		// Inicialización de componentes auxiliares
 		this.fc = new JFileChooser();
 		this.fc.setCurrentDirectory(new File(System.getProperty("user.dir") + "/resources/examples"));
 		this.changeRegionsDialog = new ChangeRegionsDialog(ctrl);
-		
-	}
 
+	}
 
 	private void runSim(int n, double dt, int delay) {
 		while (n > 0 && !Thread.currentThread().isInterrupted()) {
