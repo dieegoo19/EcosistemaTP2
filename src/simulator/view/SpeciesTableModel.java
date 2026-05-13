@@ -88,22 +88,23 @@ public class SpeciesTableModel extends AbstractTableModel implements EcoSysObser
 	}
 
 	private void update(List<AnimalInfo> animals) {
-		this.speciesNames = new ArrayList<>();
-		this.info = new HashMap<>();
-		for (AnimalInfo a : animals) {
-			if (!speciesNames.contains(a.getGeneticCode())) {
-				speciesNames.add(a.getGeneticCode());
-			}
-		}
-		Collections.sort(speciesNames);
-		Animal.State[] states = Animal.State.values();
-		for(String sp: speciesNames) {
-			Map<Animal.State, Integer> newMap = new HashMap<>();
-			for(Animal.State st: states) {
-				newMap.put(st, (int)animals.stream().filter(a -> a.getGeneticCode() == sp && a.getState() == st).count());
-			}
-			info.put(sp, newMap);
-		}
-		this.fireTableDataChanged();
+	    Map<String, Map<Animal.State, Integer>> newInfo = new HashMap<>();
+	    for (AnimalInfo a : animals) {
+	        String sp = a.getGeneticCode();
+	        Animal.State st = a.getState();
+	        if (!newInfo.containsKey(sp)) {
+	            Map<Animal.State, Integer> initialCounts = new HashMap<>();
+	            for (Animal.State state : Animal.State.values()) {
+	                initialCounts.put(state, 0);
+	            }
+	            newInfo.put(sp, initialCounts);
+	        }
+	        Map<Animal.State, Integer> counts = newInfo.get(sp);
+	        counts.put(st, counts.get(st) + 1);
+	    }
+	    this.info = newInfo;
+	    this.speciesNames = new ArrayList<>(this.info.keySet());
+	    Collections.sort(this.speciesNames);
+	    this.fireTableDataChanged();
 	}
 }

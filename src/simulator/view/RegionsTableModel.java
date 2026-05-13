@@ -80,18 +80,19 @@ public class RegionsTableModel extends AbstractTableModel implements EcoSysObser
 	}
 	
 	private void update(MapInfo map) {
-		info.clear();
-		for(MapInfo.RegionData reg: map) {
-			Map<Animal.Diet, Integer> newMap = new HashMap<>();
-			
-			List<AnimalInfo> animalsInfo = reg.r().getAnimalsInfo();
-			
-			for(Animal.Diet diet: Animal.Diet.values()) {
-				newMap.put(diet, (int)animalsInfo.stream().filter(a -> a.getDiet() == diet).count());
-			}
-			
-			info.add(new Info(reg.row(), reg.col(), reg.r().toString(), newMap));
-		}
+	    List<Info> newInfo = new ArrayList<>();
+	    for (MapInfo.RegionData reg : map) {
+	        Map<Animal.Diet, Integer> dietCounts = new HashMap<>();
+	        for (Animal.Diet diet : Animal.Diet.values()) {
+	            dietCounts.put(diet, 0);
+	        }
+	        for (AnimalInfo a : reg.r().getAnimalsInfo()) {
+	            Animal.Diet diet = a.getDiet();
+	            dietCounts.put(diet, dietCounts.get(diet) + 1);
+	        }
+	        newInfo.add(new Info(reg.row(), reg.col(), reg.r().toString(), dietCounts));
+	    }
+	    this.info = newInfo;
 	}
 	
 	@Override
@@ -108,13 +109,12 @@ public class RegionsTableModel extends AbstractTableModel implements EcoSysObser
 
 	@Override
 	public void onAdvance(double time, MapInfo map, List<AnimalInfo> animals, double dt) {
+		update(map);
 		this.fireTableDataChanged();
 	}
 
 	@Override
-	public void onAnimalAdded(double time, MapInfo map, List<AnimalInfo> animals, AnimalInfo a) {
-		this.fireTableDataChanged();
-	}
+	public void onAnimalAdded(double time, MapInfo map, List<AnimalInfo> animals, AnimalInfo a) {}
 
 	@Override
 	public void onRegionSet(int row, int col, MapInfo map, RegionInfo r) {
