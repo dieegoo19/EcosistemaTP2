@@ -140,4 +140,4 @@ Otros ejemplos incorporan regiones con alimento dinámico y posiciones iniciales
 
 ## Autoría
 
-Proyecto académico **desarrollado en pareja**, con participación de [Carlos Belmonte Arias](https://github.com/carlbelm) y su compañero de equipo. Se reconoce la autoría compartida y se recomienda mantener la referencia al repositorio original y su historial de contribuciones.
+Proyecto académico **desarrollado en pareja**, con participación de [Carlos Belmonte Arias](https://github.com/carlbelm) y [Diego Pallarés López](https://github.com/dieegoo19).
